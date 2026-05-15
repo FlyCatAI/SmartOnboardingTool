@@ -1,0 +1,45 @@
+name: miniprogram-ci
+
+on:
+  pull_request:
+    branches: [main, change/**]
+    paths:
+      - 'apps/miniprogram/**'
+      - '.github/workflows/miniprogram-ci.yml'
+  push:
+    branches: [main, change/**]
+    paths:
+      - 'apps/miniprogram/**'
+
+# 当前为脚手架阶段：apps/miniprogram 下只有源码模板，没有 package.json。
+# 评审通过技术栈（uni-app / Taro / 原生）后补 npm install + tsc --noEmit + eslint + vitest。
+# 现阶段只做：
+#  1) TS 文件不允许出现 console.log（防止误提交）
+#  2) 检查 src/utils/task-status.ts 中的字符串与后端枚举一致
+
+jobs:
+  sanity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: No console.log in production sources
+        run: |
+          if grep -rn --include='*.ts' -E '^[^/]*console\.log' apps/miniprogram/src; then
+            echo "::error::console.log present in source — please remove."
+            exit 1
+          fi
+
+      - name: TaskStatus enum strings agree with backend
+        run: |
+          set -e
+          fe=apps/miniprogram/src/utils/task-status.ts
+          be=apps/backend/src/main/java/com/flycat/rm/task/TaskStatus.java
+          for name in PENDING_DISPATCH PENDING_CLAIM PENDING_HANDLE IN_PROGRESS PENDING_CONFIRM DONE CLOSED; do
+            grep -q "$name" "$fe" || { echo "::error::$name missing in $fe"; exit 1; }
+            grep -q "$name" "$be" || { echo "::error::$name missing in $be"; exit 1; }
+          done
+
+      - name: Note framework TBD
+        run: |
+          echo "::notice::Mini-program framework not yet selected — see apps/miniprogram/README.md."
