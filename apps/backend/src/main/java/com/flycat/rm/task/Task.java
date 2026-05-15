@@ -60,11 +60,18 @@ public final class Task {
     }
 
     /**
-     * 客户经理认领任务。把以下三条 spec 不变量原子化到一处，避免下游 service 分散校验导致漏掉：
+     * 客户经理认领任务。把以下四条 spec 不变量原子化到一处，避免下游 service 分散校验导致漏掉：
      *
      * <ol>
-     *   <li>状态机校验：当前必须可触发 {@link TaskEvent#CLAIM}（即 PENDING_CLAIM）。</li>
-     *   <li>可见范围校验：当前用户必须在可见范围内（spec「可见范围外的越权访问」）。</li>
+     *   <li>可见范围校验：当前用户必须在可见范围内（spec「可见范围外的越权访问」）。
+     *       失败抛 {@link BusinessException}，错误码 {@link ErrorCode#TASK_VISIBILITY_DENIED}。</li>
+     *   <li>认领冲突校验：任务已被他人认领时（assigneeEmployeeId 非空），按 spec「任务认领冲突」
+     *       拒绝并抛 {@link TaskClaimConflictException}，携带原认领人工号供 UI 提示
+     *       「该任务已被 [A 姓名] 认领」。该校验必须先于状态机，避免冲突场景被
+     *       {@code IllegalTransitionException} 吞掉。</li>
+     *   <li>状态机校验：当前必须可触发 {@link TaskEvent#CLAIM}（即 PENDING_CLAIM）；其他
+     *       非冲突类非法状态（如 IN_PROGRESS / DONE / CLOSED 直接 claim）仍由状态机
+     *       抛 {@code IllegalTransitionException}。</li>
      *   <li>锁定可见范围：CLAIM 成功后 visibility 立即 lock，禁止后续编辑。</li>
      * </ol>
      *
@@ -75,6 +82,9 @@ public final class Task {
         if (!visibility.isVisibleTo(employeeId, teamMemberIds)) {
             throw new BusinessException(ErrorCode.TASK_VISIBILITY_DENIED,
                     "task " + id + " is not visible to " + employeeId);
+        }
+        if (assigneeEmployeeId != null) {
+            throw new TaskClaimConflictException(id, assigneeEmployeeId);
         }
         this.status = SM.fire(this.status, TaskEvent.CLAIM);
         this.visibility = this.visibility.lock();

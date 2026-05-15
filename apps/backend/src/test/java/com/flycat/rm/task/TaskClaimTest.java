@@ -71,12 +71,34 @@ class TaskClaimTest {
     }
 
     @Test
-    void 非待认领态_认领被状态机拒绝() {
-        // 已经被认领过的任务（PENDING_HANDLE）再次 claim 应被状态机拒
-        Task task = new Task("T-5", "team-1", TaskStatus.PENDING_HANDLE, TaskVisibility.team().lock());
+    void 已被A认领_B再认领_抛TASK_CLAIM_CONFLICT_并携带原认领人() {
+        // spec「任务认领冲突」：任务 T 已被 A 认领，B 再点认领 →
+        // 系统 SHALL 拒绝并提示「该任务已被 [A 姓名] 认领」。
+        // 业务错误码 TASK_CLAIM_CONFLICT，异常必须携带 A 的工号供 service 层查名展示。
+        Task task = new Task("T-5", "team-1", TaskStatus.PENDING_CLAIM, TaskVisibility.team());
+        task.claim("emp-A", teamMembers);
+        assertEquals(TaskStatus.PENDING_HANDLE, task.status());
+        assertEquals("emp-A", task.assigneeEmployeeId());
 
-        // 注意：此时 visibility 已 lock，但 isVisibleTo 仍按规则放行团队成员；
-        // 状态机层会拦下「PENDING_HANDLE 不能 CLAIM」的非法流转。
+        TaskClaimConflictException ex = assertThrows(TaskClaimConflictException.class,
+                () -> task.claim("emp-B", teamMembers));
+        assertEquals(ErrorCode.TASK_CLAIM_CONFLICT, ex.errorCode());
+        assertEquals("T-5", ex.taskId());
+        assertEquals("emp-A", ex.currentAssigneeEmployeeId(),
+                "spec 要求异常携带原认领人以便 UI 提示「该任务已被 [A 姓名] 认领」");
+
+        // B 认领失败不得影响既有状态：A 仍是负责人，状态保持 PENDING_HANDLE。
+        assertEquals(TaskStatus.PENDING_HANDLE, task.status());
+        assertEquals("emp-A", task.assigneeEmployeeId());
+    }
+
+    @Test
+    void 状态非PENDING_CLAIM且无认领人_认领被状态机拒绝() {
+        // 边界场景：理论上不应通过合法路径出现（任务一旦推进必有 assignee），
+        // 但状态机层仍兜底拦截，避免被绕过。该场景与认领冲突区分开：
+        // 冲突 → TASK_CLAIM_CONFLICT；非冲突的非法状态 → IllegalTransitionException。
+        Task task = new Task("T-6", "team-1", TaskStatus.IN_PROGRESS, TaskVisibility.team().lock());
+
         assertThrows(IllegalTransitionException.class,
                 () -> task.claim("emp-A", teamMembers));
     }
