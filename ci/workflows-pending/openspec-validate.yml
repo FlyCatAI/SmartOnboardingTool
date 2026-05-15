@@ -1,0 +1,31 @@
+name: openspec-validate
+
+on:
+  pull_request:
+    branches: [main, change/**]
+    paths:
+      - 'openspec/**'
+      - 'package.json'
+      - 'package-lock.json'
+  push:
+    branches: [main, change/**]
+    paths:
+      - 'openspec/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Validate all OpenSpec changes
+        run: |
+          for dir in openspec/changes/*/; do
+            slug=$(basename "$dir")
+            echo "--- validating $slug ---"
+            npx openspec validate "$slug"
+          done
