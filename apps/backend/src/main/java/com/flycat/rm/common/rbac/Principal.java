@@ -23,6 +23,15 @@ public record Principal(
         return switch (role) {
             case RELATIONSHIP_MANAGER -> DataScope.SELF;
             case TEAM_LEADER -> DataScope.TEAM;
+            case BRANCH_HEAD -> DataScope.BRANCH;
         };
+    }
+
+    /**
+     * 支行行长在 v1 内仅持有只读权限；service 层在任何写操作入口都应调用此方法做前置校验。
+     * 派单 / 审批转派 / 任务状态变更 / 跟进编辑等写入语义均归属对应团队主管。
+     */
+    public boolean canWrite() {
+        return role != Role.BRANCH_HEAD;
     }
 }

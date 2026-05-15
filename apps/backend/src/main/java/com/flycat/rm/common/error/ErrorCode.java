@@ -27,6 +27,7 @@ public enum ErrorCode {
     // RBAC
     ROLE_MISMATCH("1101", "role_mismatch"),
     DATA_SCOPE_DENIED("1102", "data_scope_denied"),
+    BRANCH_HEAD_WRITE_DENIED("1103", "branch_head_write_denied"),
 
     // merchant-management
     MERCHANT_NOT_FOUND("2001", "merchant_not_found"),
@@ -38,6 +39,9 @@ public enum ErrorCode {
     TASK_NOT_FOUND("3001", "task_not_found"),
     TASK_ILLEGAL_TRANSITION("3010", "task_illegal_transition"),
     TASK_CLAIM_CONFLICT("3011", "task_claim_conflict"),
+    TASK_VISIBILITY_INVALID("3012", "task_visibility_invalid"),
+    TASK_VISIBILITY_LOCKED("3013", "task_visibility_locked"),
+    TASK_VISIBILITY_DENIED("3014", "task_visibility_denied"),
     TASK_REASSIGN_PENDING("3020", "task_reassign_pending"),
     TASK_CONFIRM_NOT_ALLOWED("3030", "task_confirm_not_allowed"),
 
