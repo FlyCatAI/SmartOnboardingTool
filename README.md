@@ -22,12 +22,16 @@ openspec/
 
 ## 工作流
 
-1. **新建提案**：`openspec new change <slug>`
-2. **撰写 proposal.md / spec_delta**：补充 Why / What / Capabilities / Impact
-3. **本地校验**：`openspec validate <slug>`
-4. **提交评审**：推送 `change/<slug>` 分支并发起 PR
-5. **归档**：评审通过后将 delta 合入 `openspec/specs/`
+OpenSpec CLI 已在 `package.json` 中固定版本，首次使用前执行 `npm install`（需 Node ≥ 18）。
+之后通过 `npx openspec ...` 或 `npm run validate -- <slug>` 调用，无需依赖全局安装。
+
+1. **安装工具链**：`npm install`
+2. **新建提案**：`npx openspec new change <slug>`
+3. **撰写 proposal.md / spec_delta**：补充 Why / What / Capabilities / Impact
+4. **本地校验**：`npx openspec validate <slug>`（或 `npm run validate -- <slug>`）
+5. **提交评审**：推送 `change/<slug>` 分支并发起 PR
+6. **归档**：评审通过后将 delta 合入 `openspec/specs/`
 
 ## 当前状态
 
-提案 `rm-mvp-prd` 已通过本地校验（`25 deltas, 0 issues`），进入**审查状态**，等待评审后再进入 design / tasks 阶段。
+提案 `rm-mvp-prd` 已通过本地校验（`npx openspec validate rm-mvp-prd --json` → `passed: 1, failed: 0`），进入**审查状态**，等待评审后再进入 design / tasks 阶段。

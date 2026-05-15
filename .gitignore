@@ -4,6 +4,9 @@
 .claude/
 CLAUDE.md
 
+# Node toolchain (openspec is pinned in package.json; install with `npm install`)
+node_modules/
+
 # OS / editor noise
 .DS_Store
 Thumbs.db
