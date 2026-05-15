@@ -1,12 +1,13 @@
 # RM 展业小程序 — 后端服务脚手架
 
-对应 OpenSpec change `rm-mvp-prd`，覆盖 5 个 capability：
+对应 OpenSpec change `rm-mvp-prd`，覆盖 6 个 capability（spec_delta 后从 5 → 6，新增 ops-console）：
 
-- `auth-and-identity` — SSO 会话、RBAC、OTP
-- `workstation` — 工作台聚合
+- `auth-and-identity` — SSO 会话、RBAC（三类角色含支行行长）、OTP
+- `workstation` — 工作台聚合（含支行行长只读聚合）
 - `merchant-management` — 商户档案与跟进
-- `task-management` — 任务七态状态机
+- `task-management` — 任务七态状态机 + 任务池可见范围（同团队 / 自定义，认领后锁定）
 - `notification` — 双通道通知与未读计数
+- `ops-console` — 运营后台配置中心（敏感字段明文窗口可配置等）
 
 ## 状态
 
@@ -31,10 +32,11 @@
 
 | 模块 | 对应 spec | 主要 Requirement |
 |---|---|---|
-| `auth` | `auth-and-identity/spec.md` | SSO 登录、会话续期、RBAC、OTP |
-| `workstation` | `workstation/spec.md` | 工作台聚合首屏 ≤ 2s |
+| `auth` | `auth-and-identity/spec.md` | SSO 登录、会话续期、RBAC（三类角色）、OTP |
+| `workstation` | `workstation/spec.md` | 工作台聚合首屏 ≤ 2s（含支行行长只读聚合） |
 | `merchant` | `merchant-management/spec.md` | 列表/详情/跟进/敏感字段脱敏 |
-| `task` | `task-management/spec.md` | 七态状态机 / 认领 / 转派 / 完成回报 |
+| `task` | `task-management/spec.md` | 七态状态机 / 任务池可见范围 / 认领锁定 / 转派 / 完成回报 |
 | `notification` | `notification/spec.md` | 订阅消息 + 站内双通道 |
 | `common.audit` | 全 spec 横切 | 操作日志 ≥ 6 个月 |
-| `common.otp` | `auth-and-identity` + `merchant-management` | 敏感字段 OTP 解密 30s 窗口 |
+| `common.otp` | `auth-and-identity` + `merchant-management` + `ops-console` | 敏感字段 OTP 解密窗口（默认 30s，运营后台可配 10-120s） |
+| `common.rbac` | `auth-and-identity` | 三类角色（客户经理 / 团队主管 / 支行行长）；支行行长 = 只读聚合 + 团队下钻 |
