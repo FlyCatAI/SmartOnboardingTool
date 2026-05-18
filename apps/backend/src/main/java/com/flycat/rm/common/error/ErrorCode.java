@@ -46,7 +46,10 @@ public enum ErrorCode {
     PUSH_CHANNEL_UNAUTHORIZED("4010", "push_channel_unauthorized"),
 
     // workstation
-    WORKSTATION_AGGREGATION_TIMEOUT("5001", "workstation_aggregation_timeout");
+    WORKSTATION_AGGREGATION_TIMEOUT("5001", "workstation_aggregation_timeout"),
+
+    // performance (慧展业拓展：历史业绩页年度业绩汇总区)
+    PERFORMANCE_SUMMARY_UNAVAILABLE("6001", "performance_summary_unavailable");
 
     private final String code;
     private final String slug;
