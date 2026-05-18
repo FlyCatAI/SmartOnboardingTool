@@ -1,0 +1,13 @@
+{
+  "structural_check": true,
+  "conflict_check": true,
+  "conflicts": [],
+  "checklist_for_human": [
+    "确认 proposal.md 中 Why / Capabilities / spec scenarios 可作为 business_motive、scope_boundary、user_stories 的语义映射。",
+    "确认本年度口径采用当前自然年 1 月 1 日 00:00:00 至 statisticsAsOf，且按行内统一时区计算。",
+    "确认历史累计包含截至 statisticsAsOf 的全部可追溯历史业绩，并包含本年度数据。",
+    "确认入网商户数、达标商户数、有效商户数、总收入均沿用现有慧展业明细口径，不新增业务判定规则。",
+    "确认本期范围仅限历史业绩页顶部汇总区，不包含图表趋势、同比环比、目标完成率、团队排行等扩展能力。"
+  ],
+  "recommendation": "approve"
+}
