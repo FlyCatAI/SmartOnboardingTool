@@ -1,44 +1,39 @@
 # Tasks - annual-performance-summary
 
-> 本提案仅交付提案材料；以下任务为后续阶段（设计 / 实施）的实现清单，**不**在本提案内执行。
+> 技术设计产出后，`state["tech_review_status"] = "pending"`。技术负责人批准前，开发 Agent 不得开始实现。
 
-## 1. 设计阶段（待 T-002 提案审查通过后启动）
+## 1. Design Gate
 
-- [ ] 1.1 UX 设计：输出年度业绩汇总区在 `/history-performance` 顶部的信息架构与交互稿，覆盖 Tab 切换、4 张 P1 卡片、P2 资产总计卡片占位态、跳转规则与「自 2026 年起」标注位置
-- [ ] 1.2 UI 设计：输出视觉规格，金额统一为「元 + 千分位 + 2 位小数」（Q-8），覆盖加载 / 空态 / 错误态 / 不可点击态
-- [ ] 1.3 解决方案架构：定义年度业绩汇总后端聚合接口契约（请求参数 `period_type`、响应字段 `new_merchants` / `qualified` / `active` / `income` / `aum_total`），明确 `aum_total` 可为 `null`（Q-1 方案 B）
-- [ ] 1.4 解决方案架构：定义前端新增路由 `/history-performance` 的查询参数解析（合法 `type` ∈ {`qualified`, `active`}；`type=new` 不实现；其他取值视为缺省）
-- [ ] 1.5 解决方案架构：明确 T+1 数据刷新与缓存策略，定义「数据更新于」时间戳来源与延迟兜底逻辑
-- [ ] 1.6 解决方案架构：与数据团队对齐商户状态、入网、收入数据的具体上游表与可复用聚合层（Q-10 落地）
-- [ ] 1.7 设计审查：技术方案与 UX/UI 设计获得人工批准
+- [ ] 1.1 技术负责人审查 `design.md` 的接口、数据模型、缓存、权限和迁移规则。Estimate: S. Depends on: proposal/spec approved. Acceptance: 审查结论明确为 approve/revise；approve 后才允许进入开发。
+- [ ] 1.2 UX 设计师输出 T-003 交互方案并与本技术契约对齐。Estimate: S. Depends on: proposal/spec approved. Acceptance: 交互方案覆盖 Tab、卡片跳转、AUM 占位、错误态和「自 2026 年起」标注。
+- [ ] 1.3 UI 设计师在技术/UX 审查后输出视觉规格。Estimate: S. Depends on: 1.1, 1.2. Acceptance: 视觉规格覆盖 P1/P2 卡片、元/千分位/2 位小数、加载/空/错/不可点击态。
 
-## 2. 后端实现
+## 2. Backend And Data
 
-- [ ] 2.1 实现年度业绩汇总聚合接口（按 `period_type` 返回 4 项 P1 指标 + `aum_total`），强制校验「请求员工号 = 当前会话员工号」，越权返回 403 + `E_RM_PERF_FORBIDDEN`
-- [ ] 2.2 实现「入网商户」聚合逻辑（按入网时间归集，Q-3 锚点）
-- [ ] 2.3 实现「达标商户」「有效商户」聚合逻辑（周期内曾达到状态即计入，去重，Q-2 口径）
-- [ ] 2.4 实现「总收入」聚合逻辑（直接返回累计值，前端不二次聚合；Q-4 商户迁移规则下，收入不随商户迁出/迁入接收方）
-- [ ] 2.5 接入 T+1 数据仓库批次，返回「数据更新于」时间戳；延迟时沿用最近一批结果
-- [ ] 2.6 `aum_total` 字段实现为可选：聚合能力上线前后端返回 `null`（Q-1 方案 B）
-- [ ] 2.7 完整单测 + 集成测试，覆盖 Q-2/Q-3/Q-4 口径，及越权 403 路径
-- [ ] 2.8 商户迁移规则（Q-4）的归属变更事件接入：迁移生效后，新归属人立即获得该商户的入网 / 达标 / 有效计数权，原归属人立即失去权限；总收入按归属期间各自累加
+- [ ] 2.1 确认 Q-10 数据源映射。Estimate: S. Depends on: 1.1. Acceptance: 明确商户入网、状态事件、收入事实、AUM 快照、批次完成时间的上游表/接口、owner、SLA 和字段映射。
+- [ ] 2.2 设计并落地快照/归属区间数据结构。Estimate: M. Depends on: 2.1. Acceptance: `rm_perf_summary_snapshot`、`rm_merchant_ownership_interval`、状态事件和收入事实映射可支持 Q-2/Q-3/Q-4；包含唯一键和幂等策略。
+- [ ] 2.3 实现领域模型和聚合器。Estimate: M. Depends on: 2.2. Acceptance: `PeriodType`、归属区间、状态去重、收入归属规则以纯领域单测覆盖，不依赖 Web/DB 框架。
+- [ ] 2.4 实现 T+1 快照生成或读取适配。Estimate: L. Depends on: 2.2, 2.3. Acceptance: 生成/读取 `current_year` 和 `all_time` 两类快照；返回批次完成时间；批次延迟时标记 `data_delay=true`。
+- [ ] 2.5 实现年度业绩汇总 API。Estimate: M. Depends on: 2.3, 2.4. Acceptance: `GET /api/v1/performance/annual-summary` 支持 `period_type`，返回 4 个 P1 指标、nullable `aum_total`、`updated_at`、`history_start_year`。
+- [ ] 2.6 实现权限和审计。Estimate: S. Depends on: 2.5. Acceptance: 仅 `RELATIONSHIP_MANAGER` 可查本人；`employee_id` 不一致或非 RM 返回 403 `E_RM_PERF_FORBIDDEN` 并写审计日志。
+- [ ] 2.7 实现服务端缓存和失效策略。Estimate: M. Depends on: 2.5. Acceptance: 缓存 key 包含 `employee_id + period_type + snapshot_biz_date`；snapshot-ready 后可失效；禁止跨员工复用。
+- [ ] 2.8 后端测试。Estimate: M. Depends on: 2.3, 2.5, 2.6, 2.7. Acceptance: 单测/集成测试覆盖 Q-2、Q-3、Q-4、AUM null、金额 DECIMAL、T+1 延迟、403、非法 `period_type`。
 
-## 3. 前端实现
+## 3. Frontend
 
-- [ ] 3.1 新增前端路由 `/history-performance`，解析查询参数 `type ∈ {qualified, active}`；`type=new` 与未知值视为缺省
-- [ ] 3.2 实现年度业绩汇总区组件，包含 Tab（`period_type` 切换）+ 4 张 P1 卡片 + 1 张 P2 卡片
-- [ ] 3.3 实现金额格式化工具：单位「元」、千分位、2 位小数（Q-8）
-- [ ] 3.4 实现 4 张 P1 卡片跳转：入网 → `/history-performance`（无 `type`）；达标 → `?type=qualified`；有效 → `?type=active`；总收入 → `/income-details`
-- [ ] 3.5 实现 P2「资产总计」卡片：`null` 时降级为「暂无数据」、hover 显示「开发中」tooltip、不可点击（Q-1 方案 B）
-- [ ] 3.6 实现「自 2026 年起」标注，仅在「历史汇总」Tab 选中时展示（Q-9）
-- [ ] 3.7 实现加载骨架态、错误态（含「重试」与连续 3 次失败折叠）、空态（合法 0 值不隐藏卡片）
-- [ ] 3.8 实现 Tab 连续切换的请求竞态处理（取消上一次请求或丢弃旧响应）
-- [ ] 3.9 桌面端 1440×900 首屏布局验证，不出现横向滚动
+- [ ] 3.1 新增 `/history-performance` 路由和入口。Estimate: M. Depends on: 1.2. Acceptance: 客户经理从「我的」进入页面；非客户经理看到不支持提示；未知 `type` 和 `type=new` 视为缺省。
+- [ ] 3.2 实现 summary API client 和 DTO 类型。Estimate: S. Depends on: 2.5 API contract. Acceptance: 客户端只调用汇总接口，不从明细列表计算总收入；支持 `period_type=current_year|all_time`。
+- [ ] 3.3 实现年度业绩汇总区组件。Estimate: M. Depends on: 1.2, 1.3, 3.2. Acceptance: 渲染 Tab、4 张 P1 卡片、1 张 P2 卡片、`updated_at` 和 `data_delay` 提示。
+- [ ] 3.4 实现金额格式化工具。Estimate: S. Depends on: none. Acceptance: `0` 渲染为 `¥0.00 元`，`1234567.89` 渲染为 `¥1,234,567.89 元`，不使用「万」。
+- [ ] 3.5 实现卡片跳转和不可点击规则。Estimate: S. Depends on: 3.1, 3.3. Acceptance: 入网跳 `/history-performance`，达标跳 `?type=qualified`，有效跳 `?type=active`，总收入跳 `/income-details`，AUM 不跳转并提示「开发中」。
+- [ ] 3.6 实现加载、空态、错误态和重试。Estimate: M. Depends on: 3.3. Acceptance: 合法 0 值不隐藏；5xx/超时不展示旧数；连续 3 次失败折叠为稍后再试；AUM null 显示「暂无数据」。
+- [ ] 3.7 实现 Tab 请求竞态处理。Estimate: S. Depends on: 3.2, 3.3. Acceptance: 连续切换时取消旧请求或丢弃旧响应，只渲染最新 Tab 数据。
+- [ ] 3.8 前端测试和适配验证。Estimate: M. Depends on: 3.1-3.7. Acceptance: 单测覆盖格式化、路由参数、状态渲染；1440x900 首屏完整展示且无横向滚动。
 
-## 4. 验证与发布
+## 4. Contract, QA, Release
 
-- [ ] 4.1 代码审查：聚合接口契约、商户迁移规则、Q-2/Q-3/Q-4 实现一致性
-- [ ] 4.2 测试执行：覆盖 spec.md 全部 Scenario（Tab 切换、4 项 P1 + 1 项 P2、迁移规则、403 越权、T+1 延迟、错误态）
-- [ ] 4.3 部署发布与基础健康检查
-- [ ] 4.4 配套培训物料：商户迁移规则（Q-4）的「计数迁移、收入不迁移」对客户经理的影响说明
-- [ ] 4.5 客服 FAQ 更新：「为什么我的数字和报表对不上」（解释 T+1 节奏，Q-5）
+- [ ] 4.1 前后端契约联调。Estimate: M. Depends on: 2.5, 3.2. Acceptance: OpenAPI 示例、mock 数据和真实接口响应字段一致；decimal 字符串无精度损失。
+- [ ] 4.2 数据口径验收脚本。Estimate: M. Depends on: 2.4. Acceptance: 使用在职、迁入、迁出、无业绩、AUM null 样本验证快照与源数据误差为 0。
+- [ ] 4.3 E2E 场景测试。Estimate: M. Depends on: 2.8, 3.8, 4.1. Acceptance: 覆盖 spec.md 所有 Scenario，重点包括 Tab 切换、Q-4 迁移、403、T+1 延迟、卡片跳转、错误重试。
+- [ ] 4.4 灰度发布准备。Estimate: S. Depends on: 4.3. Acceptance: 前端入口和后端 API 均有 feature flag；回滚方式为关闭入口/API；监控指标已配置。
+- [ ] 4.5 运营与客服材料更新。Estimate: S. Depends on: 4.3. Acceptance: 培训材料解释 Q-4「计数随迁、收入不迁移」和 Q-5 T+1；FAQ 覆盖「为什么数字和报表对不上」。
