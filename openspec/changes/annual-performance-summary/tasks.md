@@ -21,14 +21,14 @@
 
 ## 3. Frontend
 
-- [ ] 3.1 新增 `/history-performance` 路由和入口。Estimate: M. Depends on: 1.2. Acceptance: 客户经理从「我的」进入页面；非客户经理看到不支持提示；未知 `type` 和 `type=new` 视为缺省。
-- [ ] 3.2 实现 summary API client 和 DTO 类型。Estimate: S. Depends on: 2.5 API contract. Acceptance: 客户端只调用汇总接口，不从明细列表计算总收入；支持 `period_type=current_year|all_time`。
-- [ ] 3.3 实现年度业绩汇总区组件。Estimate: M. Depends on: 1.2, 1.3, 3.2. Acceptance: 渲染 Tab、4 张 P1 卡片、1 张 P2 卡片、`updated_at` 和 `data_delay` 提示。
-- [ ] 3.4 实现金额格式化工具。Estimate: S. Depends on: none. Acceptance: `0` 渲染为 `¥0.00 元`，`1234567.89` 渲染为 `¥1,234,567.89 元`，不使用「万」。
-- [ ] 3.5 实现卡片跳转和不可点击规则。Estimate: S. Depends on: 3.1, 3.3. Acceptance: 入网跳 `/history-performance`，达标跳 `?type=qualified`，有效跳 `?type=active`，总收入跳 `/income-details`，AUM 不跳转并提示「开发中」。
-- [ ] 3.6 实现加载、空态、错误态和重试。Estimate: M. Depends on: 3.3. Acceptance: 合法 0 值不隐藏；5xx/超时不展示旧数；连续 3 次失败折叠为稍后再试；AUM null 显示「暂无数据」。
-- [ ] 3.7 实现 Tab 请求竞态处理。Estimate: S. Depends on: 3.2, 3.3. Acceptance: 连续切换时取消旧请求或丢弃旧响应，只渲染最新 Tab 数据。
-- [ ] 3.8 前端测试和适配验证。Estimate: M. Depends on: 3.1-3.7. Acceptance: 单测覆盖格式化、路由参数、状态渲染；1440x900 首屏完整展示且无横向滚动。
+- [~] 3.1 新增 `/history-performance` 路由和入口。Estimate: M. Depends on: 1.2. Acceptance: 客户经理从「我的」进入页面；非客户经理看到不支持提示；未知 `type` 和 `type=new` 视为缺省。**进度**：`src/pages/history-performance/route.ts` 已实现 `parseHistoryPerformanceType()`（含 `type=new` / 未知 / 大小写非法均归默认）并覆盖 7 个单测；页面级入口绑定（菜单挂载、角色兜底 UI）需在 uni-app / 原生 / Taro 技术栈最终确定后补 `.vue` 或 `.wxml` 视图。
+- [x] 3.2 实现 summary API client 和 DTO 类型。Estimate: S. Depends on: 2.5 API contract. Acceptance: 客户端只调用汇总接口，不从明细列表计算总收入；支持 `period_type=current_year|all_time`。`src/services/performance-summary.ts` 调用 `GET /api/v1/performance/annual-summary?period_type=...`，DTO 中 `income` / `aum_total` 保持 DECIMAL 字符串避免精度损失；`http.ts` 已扩展 `AbortSignal` 透传与非 2xx `body.code` 透传（覆盖 6 个单测，含 403 → `E_RM_PERF_FORBIDDEN`、stale guard）。
+- [~] 3.3 实现年度业绩汇总区组件。Estimate: M. Depends on: 1.2, 1.3, 3.2. Acceptance: 渲染 Tab、4 张 P1 卡片、1 张 P2 卡片、`updated_at` 和 `data_delay` 提示。**进度**：框架无关控制器 `src/components/annual-performance-summary/controller.ts` 已完成，包含状态机（idle/loading/success/error/forbidden）、AUM null 状态、`updated_at` / `data_delay` 透传，覆盖 13 个单测；视图层（卡片、Tab、骨架、tooltip 等）需在 UI 框架敲定后绑定 controller state 渲染。
+- [x] 3.4 实现金额格式化工具。Estimate: S. Depends on: none. Acceptance: `0` 渲染为 `¥0.00 元`，`1234567.89` 渲染为 `¥1,234,567.89 元`，不使用「万」。`src/utils/money-format.ts` 全字符串运算，覆盖 8 个单测（零值、千分位、四舍五入、超长十进制、负数、null → 「暂无数据」、绝不输出「万」）。
+- [x] 3.5 实现卡片跳转和不可点击规则。Estimate: S. Depends on: 3.1, 3.3. Acceptance: 入网跳 `/history-performance`，达标跳 `?type=qualified`，有效跳 `?type=active`，总收入跳 `/income-details`，AUM 不跳转并提示「开发中」。`src/components/annual-performance-summary/card-routes.ts` 的 `cardRoute()` 覆盖 6 个单测；视图侧只需消费该映射调用平台 navigator，不重复实现。
+- [x] 3.6 实现加载、空态、错误态和重试。Estimate: M. Depends on: 3.3. Acceptance: 合法 0 值不隐藏；5xx/超时不展示旧数；连续 3 次失败折叠为稍后再试；AUM null 显示「暂无数据」。控制器内含 `consecutiveFailures` 计数与 3 次失败后 `canRetry=false` + 文案折叠；测试覆盖「合法 0 值」「5xx 不残值」「3 次折叠」「成功重试归零」。
+- [x] 3.7 实现 Tab 请求竞态处理。Estimate: S. Depends on: 3.2, 3.3. Acceptance: 连续切换时取消旧请求或丢弃旧响应，只渲染最新 Tab 数据。控制器对每次 `load()` 创建新的 `AbortController` 并 abort 上一个；同时基于 `requestSeq` 序号在响应到达时丢弃旧 Tab 结果（双保险，覆盖原生小程序适配器无 abort 能力的场景）。
+- [~] 3.8 前端测试和适配验证。Estimate: M. Depends on: 3.1-3.7. Acceptance: 单测覆盖格式化、路由参数、状态渲染；1440x900 首屏完整展示且无横向滚动。**已完成**：Vitest + TS 测试基建落地（`apps/miniprogram/package.json` / `tsconfig.json` / `vitest.config.ts`），40/40 单测通过 + `tsc --noEmit` 0 错误，覆盖 money-format / route 解析 / cardRoute / controller 状态机。**待 UI 框架后**：1440x900 首屏视觉走查与跨端适配验证。
 
 ## 4. Contract, QA, Release
 
