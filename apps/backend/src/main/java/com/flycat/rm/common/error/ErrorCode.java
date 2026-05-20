@@ -46,7 +46,10 @@ public enum ErrorCode {
     PUSH_CHANNEL_UNAUTHORIZED("4010", "push_channel_unauthorized"),
 
     // workstation
-    WORKSTATION_AGGREGATION_TIMEOUT("5001", "workstation_aggregation_timeout");
+    WORKSTATION_AGGREGATION_TIMEOUT("5001", "workstation_aggregation_timeout"),
+
+    // annual-performance-summary
+    E_RM_PERF_FORBIDDEN("6001", "rm_perf_forbidden");
 
     private final String code;
     private final String slug;
