@@ -1,0 +1,440 @@
+version: 1
+change: annual-performance-summary
+artifact: ui-style-spec
+status: ready-for-frontend
+scope:
+  platform:
+    - mobile-miniprogram
+    - wide-web-adaptation
+  source_documents:
+    - openspec/changes/annual-performance-summary/proposal.md
+    - openspec/changes/annual-performance-summary/specs/annual-performance-summary/spec.md
+    - openspec/changes/annual-performance-summary/design/ux/wireframes.md
+    - openspec/changes/annual-performance-summary/design/ux/information-architecture.md
+    - openspec/changes/annual-performance-summary/design/ux/journey.md
+  non_goals:
+    - frontend_implementation
+    - route_or_api_code
+    - redesign_existing_workstation
+
+visual_direction:
+  name: "restrained-industrial-banking"
+  principle: "Dense operational clarity with measured authority: quiet surfaces, strong numeric hierarchy, amber status accents, and no decorative gradient treatment."
+  execution_notes:
+    - "Match existing RM miniprogram trust-blue base while replacing placeholder looseness with final feature tokens."
+    - "Use compact, scan-first composition for repeated daily use by relationship managers."
+    - "Avoid generic AI visual traits: no Inter, no Arial, no purple gradients, no floating decorative blobs."
+
+css_variables:
+  color:
+    "--aps-color-bg": "#F4F6FA"
+    "--aps-color-surface": "#FFFFFF"
+    "--aps-color-surface-raised": "#FBFCFF"
+    "--aps-color-ink": "#172033"
+    "--aps-color-text": "#253047"
+    "--aps-color-muted": "#5C667A"
+    "--aps-color-subtle": "#7D8798"
+    "--aps-color-placeholder": "#9AA4B5"
+    "--aps-color-line": "#D9E0EA"
+    "--aps-color-line-strong": "#BFC9D8"
+    "--aps-color-primary": "#1F62D8"
+    "--aps-color-primary-hover": "#174EB5"
+    "--aps-color-primary-pressed": "#103F95"
+    "--aps-color-primary-soft": "#E7EEFB"
+    "--aps-color-focus": "#0B5FFF"
+    "--aps-color-success": "#1F7A57"
+    "--aps-color-success-soft": "#E6F5EF"
+    "--aps-color-warning": "#A85F00"
+    "--aps-color-warning-soft": "#FFF2D5"
+    "--aps-color-danger": "#B42318"
+    "--aps-color-danger-soft": "#FDE8E5"
+    "--aps-color-disabled-bg": "#EEF2F6"
+    "--aps-color-disabled-text": "#99A3B3"
+    "--aps-color-skeleton-base": "#E7ECF3"
+    "--aps-color-skeleton-sheen": "#F5F7FA"
+    "--aps-color-shadow": "rgba(23, 32, 51, 0.10)"
+  typography:
+    "--aps-font-heading": "\"IBM Plex Sans\", \"Noto Sans SC\", sans-serif"
+    "--aps-font-body": "\"Noto Sans SC\", \"IBM Plex Sans\", sans-serif"
+    "--aps-font-number": "\"IBM Plex Sans Condensed\", \"DIN Alternate\", \"Noto Sans SC\", sans-serif"
+    "--aps-letter-spacing": "0"
+  spacing_px:
+    "--aps-space-0": "0"
+    "--aps-space-1": "4px"
+    "--aps-space-2": "8px"
+    "--aps-space-3": "12px"
+    "--aps-space-4": "16px"
+    "--aps-space-5": "20px"
+    "--aps-space-6": "24px"
+    "--aps-space-8": "32px"
+    "--aps-space-10": "40px"
+  spacing_rpx:
+    "--aps-rpx-1": "8rpx"
+    "--aps-rpx-2": "16rpx"
+    "--aps-rpx-3": "24rpx"
+    "--aps-rpx-4": "32rpx"
+    "--aps-rpx-5": "40rpx"
+    "--aps-rpx-6": "48rpx"
+  radius:
+    "--aps-radius-xs": "4px"
+    "--aps-radius-sm": "6px"
+    "--aps-radius-md": "8px"
+    "--aps-radius-pill": "999px"
+  shadow:
+    "--aps-shadow-card": "0 8px 24px rgba(23, 32, 51, 0.08)"
+    "--aps-shadow-card-hover": "0 10px 28px rgba(23, 32, 51, 0.12)"
+    "--aps-shadow-focus": "0 0 0 3px rgba(11, 95, 255, 0.22)"
+
+typography:
+  font_pairing:
+    heading: "IBM Plex Sans"
+    body: "Noto Sans SC"
+    numeric: "IBM Plex Sans Condensed"
+    rationale: "Banking dashboards need trustworthy, legible Chinese text and narrow, stable numeric columns. This avoids Arial/Inter while preserving enterprise readability."
+  scale_mobile_rpx:
+    page_title:
+      size: 36
+      line_height: 48
+      weight: 700
+    section_title:
+      size: 32
+      line_height: 44
+      weight: 700
+    card_label:
+      size: 24
+      line_height: 34
+      weight: 500
+    metric_integer:
+      size: 48
+      line_height: 56
+      weight: 700
+      font: number
+    metric_money:
+      size: 36
+      line_height: 46
+      weight: 700
+      font: number
+    helper:
+      size: 22
+      line_height: 32
+      weight: 400
+    button:
+      size: 28
+      line_height: 40
+      weight: 600
+  scale_desktop_px:
+    page_title:
+      size: 24
+      line_height: 32
+      weight: 700
+    section_title:
+      size: 20
+      line_height: 28
+      weight: 700
+    card_label:
+      size: 14
+      line_height: 20
+      weight: 500
+    metric_integer:
+      size: 32
+      line_height: 40
+      weight: 700
+      font: number
+    metric_money:
+      size: 28
+      line_height: 36
+      weight: 700
+      font: number
+    helper:
+      size: 13
+      line_height: 20
+      weight: 400
+    button:
+      size: 14
+      line_height: 20
+      weight: 600
+  formatting:
+    merchant_count: "integer with no unit suffix in value; label carries merchant meaning"
+    money: "¥1,234,567.89 元; 2 decimals; thousands separator at >= 1000; never use 万"
+    zero_money: "¥0.00 元"
+    timestamp: "数据更新于 YYYY-MM-DD HH:mm"
+
+layout:
+  annual_summary:
+    mobile:
+      viewport_min_width: "320px"
+      page_padding: "24rpx"
+      container_gap: "24rpx"
+      header:
+        title_timestamp_stack: true
+        timestamp_margin_top: "8rpx"
+      tab_width: "100%"
+      p1_grid:
+        columns: 2
+        gap: "16rpx"
+        min_card_height: "176rpx"
+      p2_card:
+        width: "100%"
+        min_height: "152rpx"
+      safe_area_bottom: "24rpx"
+    desktop_wide:
+      breakpoint: "1024px"
+      max_content_width: "1120px"
+      page_padding: "24px"
+      header:
+        title_timestamp_same_row: true
+        timestamp_align: right
+      tab_width: "240px"
+      p1_grid:
+        columns: 4
+        gap: "16px"
+        min_card_height: "128px"
+      p2_card:
+        width: "100%"
+        min_height: "116px"
+      first_viewport_requirement: "At 1440x900 the full summary block, including P2, must be visible without horizontal scroll."
+  detail_boundary:
+    rule: "Leave at least 16px/32rpx visual gap before the history detail area so the summary reads as a fixed top module, not part of the list."
+
+components:
+  annual_performance_summary:
+    anatomy:
+      - page_title: "历史业绩"
+      - section_title: "年度业绩汇总"
+      - updated_at
+      - optional_delay_badge
+      - period_tabs
+      - optional_history_start_note
+      - p1_metric_grid
+      - p2_aum_card
+    default:
+      background: "var(--aps-color-bg)"
+      panel_background: "var(--aps-color-surface)"
+      panel_radius: "var(--aps-radius-md)"
+      panel_shadow: "var(--aps-shadow-card)"
+      border: "1px solid var(--aps-color-line)"
+    loading:
+      retain_structure: true
+      replace_values_with_skeleton: true
+      stale_values_visible: false
+      aria_live: polite
+    error:
+      p1_behavior: "Replace all four P1 cards with one recovery panel."
+      message_first_to_third_failure: "加载失败，点击重试"
+      message_after_third_failure: "请稍后再来查看"
+      action_label: "重试"
+      stale_values_visible: false
+      tone: danger
+    empty:
+      merchant_values: "0"
+      income_value: "¥0.00 元"
+      card_visibility: visible
+    permission:
+      summary_rendered: false
+      title: "您当前角色暂不支持查看历史业绩页"
+      action_label: "返回工作台"
+      icon: aps-icon-shield-lock
+  period_tabs:
+    labels:
+      - "本年度"
+      - "历史汇总"
+    behavior:
+      selected_tab_immediate: true
+      request_pending_shows_skeleton: true
+      keyboard: "Tab focuses tablist; Left/Right changes focused tab; Enter/Space selects."
+    default:
+      height_mobile: "72rpx"
+      height_desktop: "40px"
+      background: "#EDF2F8"
+      radius: "var(--aps-radius-pill)"
+      text_color: "var(--aps-color-muted)"
+    selected:
+      background: "var(--aps-color-surface)"
+      text_color: "var(--aps-color-primary)"
+      shadow: "0 2px 8px rgba(23, 32, 51, 0.10)"
+      font_weight: 700
+    hover:
+      text_color: "var(--aps-color-primary-hover)"
+    focus:
+      outline: "var(--aps-shadow-focus)"
+    disabled:
+      opacity: 0.55
+      cursor: not-allowed
+  history_start_note:
+    text: "自 2026 年起"
+    visible_when: "period_type=all_time"
+    placement: "Below tabs, above cards, aligned with tab start."
+    style:
+      color: "var(--aps-color-warning)"
+      background: "var(--aps-color-warning-soft)"
+      radius: "var(--aps-radius-pill)"
+      padding_mobile: "4rpx 12rpx"
+      padding_desktop: "3px 10px"
+      icon: aps-icon-calendar-anchor
+  metric_card:
+    variants:
+      new_merchants:
+        label: "入网商户"
+        icon: aps-icon-merchant-entry
+        route: "/history-performance"
+        accent_color: "var(--aps-color-primary)"
+      qualified_merchants:
+        label: "达标商户"
+        icon: aps-icon-badge-check
+        route: "/history-performance?type=qualified"
+        accent_color: "var(--aps-color-success)"
+      active_merchants:
+        label: "有效商户"
+        icon: aps-icon-activity-check
+        route: "/history-performance?type=active"
+        accent_color: "var(--aps-color-success)"
+      income:
+        label: "总收入"
+        icon: aps-icon-receipt-yuan
+        route: "/income-details"
+        accent_color: "var(--aps-color-warning)"
+    default:
+      background: "var(--aps-color-surface)"
+      border: "1px solid var(--aps-color-line)"
+      radius: "var(--aps-radius-md)"
+      padding_mobile: "24rpx"
+      padding_desktop: "16px"
+      value_color: "var(--aps-color-ink)"
+      helper_text: "点击看明细"
+    hover:
+      background: "var(--aps-color-surface-raised)"
+      border_color: "var(--aps-color-primary)"
+      shadow: "var(--aps-shadow-card-hover)"
+      transform: "translateY(-1px)"
+    pressed:
+      transform: "translateY(0)"
+      background: "#F2F6FC"
+    focus:
+      outline: "var(--aps-shadow-focus)"
+    disabled:
+      background: "var(--aps-color-disabled-bg)"
+      text_color: "var(--aps-color-disabled-text)"
+      pointer_events: none
+  aum_card:
+    label: "资产总计"
+    icon: aps-icon-wallet-reserve
+    clickable: false
+    tooltip: "开发中"
+    default:
+      background: "#FAFBFD"
+      border: "1px dashed var(--aps-color-line-strong)"
+      radius: "var(--aps-radius-md)"
+      value_color: "var(--aps-color-ink)"
+      helper_text: "上一日时点值（非日均）"
+    null_state:
+      value: "暂无数据"
+      value_color: "var(--aps-color-muted)"
+      background: "#F8FAFD"
+    hover:
+      cursor: default
+      tooltip_enabled_desktop: true
+      no_route_change: true
+    touch:
+      long_press_context_menu: false
+      tooltip_equivalent: "Use a compact non-blocking toast only if the user taps the info icon, not the whole card."
+  retry_button:
+    default:
+      height_mobile: "72rpx"
+      height_desktop: "36px"
+      min_touch_target: "44px"
+      background: "var(--aps-color-primary)"
+      text_color: "#FFFFFF"
+      radius: "var(--aps-radius-md)"
+      icon: aps-icon-refresh
+    hover:
+      background: "var(--aps-color-primary-hover)"
+    pressed:
+      background: "var(--aps-color-primary-pressed)"
+    focus:
+      outline: "var(--aps-shadow-focus)"
+    disabled:
+      background: "var(--aps-color-disabled-bg)"
+      text_color: "var(--aps-color-disabled-text)"
+  status_badge:
+    delay:
+      text: "数据延迟更新中"
+      icon: aps-icon-clock-alert
+      color: "var(--aps-color-warning)"
+      background: "var(--aps-color-warning-soft)"
+    error:
+      icon: aps-icon-alert-triangle
+      color: "var(--aps-color-danger)"
+      background: "var(--aps-color-danger-soft)"
+
+state_specs:
+  loading:
+    skeleton:
+      base_color: "var(--aps-color-skeleton-base)"
+      sheen_color: "var(--aps-color-skeleton-sheen)"
+      animation_duration: "1200ms"
+      reduced_motion: "Disable shimmer; use static blocks."
+      reserved_heights:
+        card_label: "20px"
+        card_value_mobile: "56rpx"
+        card_value_desktop: "40px"
+        p2_value_mobile: "46rpx"
+  empty:
+    p1_zero_values_are_successful_data: true
+    no_empty_illustration_inside_summary: true
+  error:
+    retry_panel_min_height_mobile: "176rpx"
+    retry_panel_min_height_desktop: "128px"
+    no_cached_numbers: true
+    keyboard: "Retry button is first tabbable control inside the error panel."
+  permission:
+    page_level_only: true
+    summary_hidden: true
+    illustration: aps-illustration-permission-locked
+  forbidden_employee:
+    message: "无权查看其他客户经理业绩"
+    behavior: "Show message, then return to workstation."
+
+accessibility:
+  target: WCAG_AA
+  contrast:
+    normal_text_min: "4.5:1"
+    large_text_min: "3:1"
+    focus_indicator_min: "3:1 against adjacent colors"
+    key_pairs:
+      ink_on_surface: ">= 12:1"
+      muted_on_surface: ">= 5:1"
+      primary_on_white: ">= 5:1"
+      danger_on_soft: ">= 5:1"
+      warning_on_soft: ">= 4.5:1"
+  keyboard_navigation:
+    tab_order:
+      - period_tabs
+      - new_merchants_card
+      - qualified_merchants_card
+      - active_merchants_card
+      - income_card
+      - aum_info_icon_if_present
+      - retry_or_return_button_when_visible
+    focus_visible_required: true
+    no_keyboard_traps: true
+  touch:
+    min_target: "44px / 88rpx"
+    min_gap: "8px / 16rpx"
+  screen_reader:
+    metric_card_name_pattern: "{label}，{value}，点击查看明细"
+    aum_null_name: "资产总计，暂无数据，上一日时点值，开发中"
+    loading_announcement: "年度业绩汇总加载中"
+    error_announcement: "年度业绩汇总加载失败，可重试"
+    delay_badge_not_color_only: true
+
+implementation_handoff:
+  route_rules:
+    new_merchants: "Do not emit type=new."
+    qualified: "Use type=qualified."
+    active: "Use type=active."
+    unknown_type: "Treat as default new_merchants detail filter."
+  responsive_acceptance:
+    - "320px mobile width has no horizontal scroll and all labels remain readable."
+    - "375px/414px mobile keep P1 as 2x2 grid."
+    - "1024px and above keep P1 as 4 columns."
+    - "1440x900 displays section title, tabs, P1 grid, and P2 card in first viewport."

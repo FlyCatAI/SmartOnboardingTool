@@ -1,0 +1,164 @@
+version: 1
+change: annual-performance-summary
+artifact: ui-asset-inventory
+status: ready-for-frontend
+asset_policy:
+  implementation_scope: "Specification only; no frontend assets are generated in this change."
+  icon_style: "Lucide-compatible outline icons, 2px stroke, round caps, no filled decorative icons."
+  bitmap_policy: "Use lightweight SVG/vector or iconfont assets for UI states. Avoid stock photos and decorative background images for this operational banking surface."
+  naming_prefix: "aps"
+
+fonts:
+  - name: ibm-plex-sans
+    role: heading-and-latin-ui
+    source: "self-host or approved internal font CDN"
+    weights: [400, 500, 600, 700]
+    formats: [woff2]
+    fallback: "Noto Sans SC"
+    notes: "Do not substitute with Inter or Arial."
+  - name: noto-sans-sc
+    role: chinese-body-ui
+    source: "self-host or approved internal font CDN"
+    weights: [400, 500, 700]
+    formats: [woff2]
+    fallback: "platform sans-serif"
+    notes: "Required for simplified Chinese legibility."
+  - name: ibm-plex-sans-condensed
+    role: numeric-metrics
+    source: "self-host or approved internal font CDN"
+    weights: [600, 700]
+    formats: [woff2]
+    fallback: "DIN Alternate"
+    notes: "Use only for metric values and currency amounts."
+
+icons:
+  base:
+    size_mobile: "40rpx"
+    size_desktop: "20px"
+    stroke_width: 2
+    color: "currentColor"
+    focusable: false
+    aria: "decorative unless used as the only visible label"
+  list:
+    - name: aps-icon-merchant-entry
+      lucide_reference: store
+      usage: "入网商户 metric card"
+      states: [default, hover, disabled]
+    - name: aps-icon-badge-check
+      lucide_reference: badge-check
+      usage: "达标商户 metric card"
+      states: [default, hover, disabled]
+    - name: aps-icon-activity-check
+      lucide_reference: activity
+      usage: "有效商户 metric card"
+      states: [default, hover, disabled]
+    - name: aps-icon-receipt-yuan
+      lucide_reference: receipt-text
+      usage: "总收入 metric card"
+      states: [default, hover, disabled]
+    - name: aps-icon-wallet-reserve
+      lucide_reference: wallet-cards
+      usage: "资产总计 P2 card"
+      states: [default, null, disabled]
+    - name: aps-icon-refresh
+      lucide_reference: refresh-cw
+      usage: "Retry button"
+      states: [default, loading, disabled]
+    - name: aps-icon-alert-triangle
+      lucide_reference: triangle-alert
+      usage: "P1 error panel"
+      states: [danger]
+    - name: aps-icon-shield-lock
+      lucide_reference: shield-alert
+      usage: "Permission state"
+      states: [forbidden]
+    - name: aps-icon-clock-alert
+      lucide_reference: clock-alert
+      usage: "数据延迟更新中 badge"
+      states: [warning]
+    - name: aps-icon-calendar-anchor
+      lucide_reference: calendar-days
+      usage: "自 2026 年起 note"
+      states: [warning]
+    - name: aps-icon-chevron-right
+      lucide_reference: chevron-right
+      usage: "Optional metric-card affordance on desktop hover only"
+      states: [default, hover]
+    - name: aps-icon-info
+      lucide_reference: info
+      usage: "Optional AUM info affordance for touch tooltip equivalent"
+      states: [default]
+
+illustrations:
+  - name: aps-illustration-permission-locked
+    type: svg
+    size_mobile: "240rpx x 180rpx"
+    size_desktop: "160px x 120px"
+    usage: "Page-level permission state only; not inside annual summary because summary must not render."
+    visual: "Simple locked ledger motif using line art, no gradients."
+    colors:
+      stroke: "#5C667A"
+      accent: "#1F62D8"
+      background: "transparent"
+    alt_text: "权限受限"
+  - name: aps-illustration-empty-history
+    type: svg
+    size_mobile: "240rpx x 180rpx"
+    size_desktop: "160px x 120px"
+    usage: "Reserved for future detail-list empty state, not for P1 legal zero values."
+    visual: "Ledger sheet with zero marker."
+    colors:
+      stroke: "#7D8798"
+      accent: "#A85F00"
+      background: "transparent"
+    alt_text: "暂无历史明细"
+
+skeleton_assets:
+  - name: aps-skeleton-metric-card
+    type: css-shape
+    usage: "P1 metric cards while loading"
+    blocks:
+      - label_line: "44% width, 20px height desktop / 34rpx mobile"
+      - value_line: "62% width, 40px height desktop / 56rpx mobile"
+      - helper_line: "36% width, 18px height desktop / 28rpx mobile"
+    motion:
+      default: "1200ms horizontal sheen"
+      reduced_motion: "static blocks"
+  - name: aps-skeleton-aum-card
+    type: css-shape
+    usage: "P2 AUM card while loading"
+    blocks:
+      - label_line: "96px width desktop / 160rpx mobile"
+      - value_line: "240px width desktop / 360rpx mobile"
+      - helper_line: "180px width desktop / 280rpx mobile"
+    motion:
+      default: "1200ms horizontal sheen"
+      reduced_motion: "static blocks"
+
+interaction_assets:
+  tooltip:
+    name: aps-tooltip-dev
+    text: "开发中"
+    trigger_desktop: "hover and focus on AUM info icon or card wrapper"
+    trigger_touch: "tap info icon only"
+    placement: "top-end when space permits; bottom-end on mobile overflow"
+    max_width: "180px"
+  live_regions:
+    - name: aps-live-summary-status
+      aria_live: polite
+      messages:
+        loading: "年度业绩汇总加载中"
+        loaded: "年度业绩汇总已更新"
+        error: "年度业绩汇总加载失败，可重试"
+
+export_requirements:
+  icons:
+    formats: [svg, iconfont]
+    minimum_svg_viewbox: "24 24"
+    stroke_scaling: "non-scaling-stroke preferred"
+  fonts:
+    preload: "Only preload active route critical fonts if the final frontend stack supports it."
+    font_display: swap
+  accessibility:
+    decorative_icons: "aria-hidden=true"
+    informative_icons: "Provide aria-label or adjacent visible text."
