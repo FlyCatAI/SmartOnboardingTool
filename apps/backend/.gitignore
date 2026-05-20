@@ -1,0 +1,5 @@
+# Local compile output (no build tool committed yet — see BUILD_TOOL_TBD.md)
+build/
+target/
+out/
+*.class
