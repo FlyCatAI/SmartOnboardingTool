@@ -5,7 +5,7 @@
 ## 1. Design Gate
 
 - [ ] 1.1 技术负责人审查 `design.md` 的接口、数据模型、缓存、权限和迁移规则。Estimate: S. Depends on: proposal/spec approved. Acceptance: 审查结论明确为 approve/revise；approve 后才允许进入开发。
-- [ ] 1.2 UX 设计师输出 T-003 交互方案并与本技术契约对齐。Estimate: S. Depends on: proposal/spec approved. Acceptance: 交互方案覆盖 Tab、卡片跳转、AUM 占位、错误态和「自 2026 年起」标注。
+- [x] 1.2 UX 设计师输出 T-003 交互方案并与本技术契约对齐。Estimate: S. Depends on: proposal/spec approved. Acceptance: 交互方案覆盖 Tab、卡片跳转、AUM 占位、错误态和「自 2026 年起」标注。
 - [ ] 1.3 UI 设计师在技术/UX 审查后输出视觉规格。Estimate: S. Depends on: 1.1, 1.2. Acceptance: 视觉规格覆盖 P1/P2 卡片、元/千分位/2 位小数、加载/空/错/不可点击态。
 
 ## 2. Backend And Data
