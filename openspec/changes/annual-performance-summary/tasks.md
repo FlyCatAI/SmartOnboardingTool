@@ -10,11 +10,11 @@
 
 ## 2. Backend And Data
 
-- [ ] 2.1 确认 Q-10 数据源映射。Estimate: S. Depends on: 1.1. Acceptance: 明确商户入网、状态事件、收入事实、AUM 快照、批次完成时间的上游表/接口、owner、SLA 和字段映射。
-- [ ] 2.2 设计并落地快照/归属区间数据结构。Estimate: M. Depends on: 2.1. Acceptance: `rm_perf_summary_snapshot`、`rm_merchant_ownership_interval`、状态事件和收入事实映射可支持 Q-2/Q-3/Q-4；包含唯一键和幂等策略。
+- [x] 2.1 确认 Q-10 数据源映射。Estimate: S. Depends on: 1.1. Acceptance: 明确商户入网、状态事件、收入事实、AUM 快照、批次完成时间的上游表/接口、owner、SLA 和字段映射。落地：`apps/backend/src/main/java/com/flycat/rm/performance/DATA_SOURCE_MAPPING.md`，对齐 `migrations/V202605201441__annual_performance_summary.sql` 与 `docs/data/annual-performance-summary.md`。
+- [x] 2.2 设计并落地快照/归属区间数据结构。Estimate: M. Depends on: 2.1. Acceptance: `rm_perf_summary_snapshot`、`rm_merchant_ownership_interval`、状态事件和收入事实映射可支持 Q-2/Q-3/Q-4；包含唯一键和幂等策略。物理模型由数据工程 `110a2c1` 落地；后端读侧 `JdbcPerformanceSnapshotRepository` / `JdbcAumSnapshotRepository` 接入 `rm_latest_perf_summary_snapshot` 视图与 `rm_aum_snapshot` 表，11 个 JDBC 适配器单测覆盖。
 - [x] 2.3 实现领域模型和聚合器。Estimate: M. Depends on: 2.2. Acceptance: `PeriodType`、归属区间、状态去重、收入归属规则以纯领域单测覆盖，不依赖 Web/DB 框架。
-- [ ] 2.4 实现 T+1 快照生成或读取适配。Estimate: L. Depends on: 2.2, 2.3. Acceptance: 生成/读取 `current_year` 和 `all_time` 两类快照；返回批次完成时间；批次延迟时标记 `data_delay=true`。
-- [ ] 2.5 实现年度业绩汇总 API。Estimate: M. Depends on: 2.3, 2.4. Acceptance: `GET /api/v1/performance/annual-summary` 支持 `period_type`，返回 4 个 P1 指标、nullable `aum_total`、`updated_at`、`history_start_year`。
+- [x] 2.4 实现 T+1 快照生成或读取适配。Estimate: L. Depends on: 2.2, 2.3. Acceptance: 生成/读取 `current_year` 和 `all_time` 两类快照；返回批次完成时间；批次延迟时标记 `data_delay=true`。读侧由 `JdbcPerformanceSnapshotRepository` 覆盖（透传 `batch_finished_at` 与 `is_delayed`）；生成侧由 `SnapshotBuildJob` 驱动 canonical SQL（`resources/performance/snapshots/build_perf_summary_snapshot.sql`，由 `docs/data/annual-performance-summary.md` §Snapshot Build SQL 抽取），4 个单测覆盖参数绑定与 `data_delay` 计算。
+- [~] 2.5 实现年度业绩汇总 API。Estimate: M. Depends on: 2.3, 2.4. Acceptance: `GET /api/v1/performance/annual-summary` 支持 `period_type`，返回 4 个 P1 指标、nullable `aum_total`、`updated_at`、`history_start_year`。**Blocked**: Web 框架 / 构建工具 / JDK / 持久层四项决策未批复；最小待决项与建议选型见 `apps/backend/CONTROLLER_BLOCKERS.md`（推荐 Spring Boot 3.x + Spring MVC + Maven + JDK 21 + Spring JdbcClient）。下层（service + JDBC + batch）已就绪，controller 在四项决策审批后可在小 PR 内落地。
 - [x] 2.6 实现权限和审计。Estimate: S. Depends on: 2.5. Acceptance: 仅 `RELATIONSHIP_MANAGER` 可查本人；`employee_id` 不一致或非 RM 返回 403 `E_RM_PERF_FORBIDDEN` 并写审计日志。
 - [ ] 2.7 实现服务端缓存和失效策略。Estimate: M. Depends on: 2.5. Acceptance: 缓存 key 包含 `employee_id + period_type + snapshot_biz_date`；snapshot-ready 后可失效；禁止跨员工复用。
 - [ ] 2.8 后端测试。Estimate: M. Depends on: 2.3, 2.5, 2.6, 2.7. Acceptance: 单测/集成测试覆盖 Q-2、Q-3、Q-4、AUM null、金额 DECIMAL、T+1 延迟、403、非法 `period_type`。
