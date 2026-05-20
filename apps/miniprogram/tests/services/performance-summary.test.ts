@@ -27,6 +27,7 @@ beforeEach(() => {
   lastRequest = null
   nextResponse = { status: 200, body: {} }
   setPlatformAdapter(fakeAdapter)
+  vi.mocked(fakeAdapter.request).mockClear()
 })
 
 describe('fetchAnnualSummary', () => {

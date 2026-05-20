@@ -17,6 +17,13 @@ export interface RequestOptions<TBody = unknown> {
   body?: TBody
   headers?: Record<string, string>
   timeoutMs?: number
+  /**
+   * Optional cancellation signal. Adapters that can honor cancellation
+   * (e.g. fetch on H5) should abort the underlying request when triggered;
+   * adapters without native support may ignore it (callers must also
+   * discard stale responses based on sequence numbers as a fallback).
+   */
+  signal?: AbortSignal
 }
 
 export class BizError extends Error {
@@ -70,6 +77,7 @@ export async function request<TResp>(opts: RequestOptions): Promise<TResp> {
     body: opts.body,
     headers: finalHeaders,
     timeoutMs: opts.timeoutMs ?? 10_000,
+    signal: opts.signal,
   })
 
   if (status === 401) {
@@ -86,5 +94,10 @@ export async function request<TResp>(opts: RequestOptions): Promise<TResp> {
     return (body?.data as TResp) ?? (body as unknown as TResp)
   }
 
+  // 非 2xx：若 body 携带业务错误码（约定 code 以字母开头如 E_RM_PERF_FORBIDDEN），优先透传；
+  // 否则退化为 HTTP 级别错误，由调用方决定是否区分。
+  if (body && body.code) {
+    throw new BizError(body.code, body.slug ?? 'http_error', body.message ?? `http ${status}`)
+  }
   throw new BizError(String(status), 'http_error', `http ${status}`)
 }
