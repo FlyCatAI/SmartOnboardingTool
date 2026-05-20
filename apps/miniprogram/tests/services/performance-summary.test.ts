@@ -13,11 +13,13 @@ let nextResponse: { status: number; body: unknown } = {
   body: {},
 }
 
+const requestSpy = vi.fn(async (opts: RequestOptions) => {
+  lastRequest = opts
+  return { status: nextResponse.status, body: nextResponse.body }
+})
+
 const fakeAdapter: PlatformAdapter = {
-  request: vi.fn(async <T>(opts: RequestOptions): Promise<{ status: number; body: T }> => {
-    lastRequest = opts
-    return { status: nextResponse.status, body: nextResponse.body as T }
-  }),
+  request: requestSpy as unknown as PlatformAdapter['request'],
   getSessionToken: vi.fn(() => 'fake-token'),
   clearSessionToken: vi.fn(),
   navigateToLogin: vi.fn(),
@@ -27,7 +29,7 @@ beforeEach(() => {
   lastRequest = null
   nextResponse = { status: 200, body: {} }
   setPlatformAdapter(fakeAdapter)
-  vi.mocked(fakeAdapter.request).mockClear()
+  requestSpy.mockClear()
 })
 
 describe('fetchAnnualSummary', () => {
@@ -143,7 +145,7 @@ describe('fetchAnnualSummary', () => {
     }
     await fetchAnnualSummary({ periodType: 'current_year' })
 
-    expect(fakeAdapter.request).toHaveBeenCalledTimes(1)
+    expect(requestSpy).toHaveBeenCalledTimes(1)
     expect(lastRequest?.url).toContain('/performance/annual-summary')
     expect(lastRequest?.url).not.toContain('/merchants/')
     expect(lastRequest?.url).not.toContain('/income-details')
