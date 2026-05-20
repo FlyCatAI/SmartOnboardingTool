@@ -1,0 +1,13 @@
+{
+  "structural_check": true,
+  "conflict_check": true,
+  "conflicts": [],
+  "checklist_for_human": [
+    "确认 Q-4 商户迁移规则是否作为后续设计和技术方案的硬约束：入网 / 达标 / 有效计数随迁，总收入按归属期间分别累计、不迁移。",
+    "确认 Q-7 的处理方式：本期同步新增 /history-performance 路由与 type=qualified|active 解析，type=new 明确不支持。",
+    "确认 Q-8 金额展示统一为元、保留 2 位小数、千分位格式，不再使用万为单位。",
+    "确认 Q-9 仅在历史汇总 Tab 展示“自 2026 年起”，本年度 Tab 不展示。",
+    "确认 Q-10 的具体上游表和聚合层留到技术方案门禁，不阻塞本提案进入设计 / 技术方案。"
+  ],
+  "recommendation": "approve"
+}
