@@ -10,7 +10,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import AnnualPerformanceSummary from '../../src/components/annual-performance-summary/AnnualPerformanceSummary.vue'
+import AnnualPerformanceSummaryView from '../../src/components/annual-performance-summary/AnnualPerformanceSummary.vue'
 import {
   createAnnualSummaryController,
   type AnnualSummaryController,
@@ -58,7 +58,7 @@ describe('AnnualPerformanceSummary.vue', () => {
 
   it('renders the section title, tabs and four P1 card labels after successful load', async () => {
     fetcher.mockResolvedValueOnce(makeData())
-    const wrapper = mount(AnnualPerformanceSummary, {
+    const wrapper = mount(AnnualPerformanceSummaryView, {
       props: { controller: controllerWith(fetcher as unknown as SummaryFetcher) },
     })
     await flushPromises()
@@ -81,7 +81,7 @@ describe('AnnualPerformanceSummary.vue', () => {
         income: '1234567.89',
       }),
     )
-    const wrapper = mount(AnnualPerformanceSummary, {
+    const wrapper = mount(AnnualPerformanceSummaryView, {
       props: { controller: controllerWith(fetcher as unknown as SummaryFetcher) },
     })
     await flushPromises()
@@ -94,7 +94,7 @@ describe('AnnualPerformanceSummary.vue', () => {
 
   it('renders the P2 AUM card as 暂无数据 when aum_total is null and never as 万', async () => {
     fetcher.mockResolvedValueOnce(makeData({ aum_total: null }))
-    const wrapper = mount(AnnualPerformanceSummary, {
+    const wrapper = mount(AnnualPerformanceSummaryView, {
       props: { controller: controllerWith(fetcher as unknown as SummaryFetcher) },
     })
     await flushPromises()
@@ -108,7 +108,7 @@ describe('AnnualPerformanceSummary.vue', () => {
 
   it('renders formatted AUM money when aum_total is a valid decimal string', async () => {
     fetcher.mockResolvedValueOnce(makeData({ aum_total: '5000000.50' }))
-    const wrapper = mount(AnnualPerformanceSummary, {
+    const wrapper = mount(AnnualPerformanceSummaryView, {
       props: { controller: controllerWith(fetcher as unknown as SummaryFetcher) },
     })
     await flushPromises()
@@ -119,7 +119,7 @@ describe('AnnualPerformanceSummary.vue', () => {
   it('AUM card is not clickable (does not emit navigate)', async () => {
     fetcher.mockResolvedValueOnce(makeData({ aum_total: '100.00' }))
     const onNavigate = vi.fn()
-    const wrapper = mount(AnnualPerformanceSummary, {
+    const wrapper = mount(AnnualPerformanceSummaryView, {
       props: {
         controller: controllerWith(fetcher as unknown as SummaryFetcher),
         onCardNavigate: onNavigate,
@@ -134,7 +134,7 @@ describe('AnnualPerformanceSummary.vue', () => {
   it('emits cardNavigate with the correct route on each clickable P1 card', async () => {
     fetcher.mockResolvedValue(makeData())
     const onNavigate = vi.fn()
-    const wrapper = mount(AnnualPerformanceSummary, {
+    const wrapper = mount(AnnualPerformanceSummaryView, {
       props: {
         controller: controllerWith(fetcher as unknown as SummaryFetcher),
         onCardNavigate: onNavigate,
@@ -162,7 +162,7 @@ describe('AnnualPerformanceSummary.vue', () => {
 
   it('renders the data-delay badge only when data_delay is true', async () => {
     fetcher.mockResolvedValueOnce(makeData({ data_delay: true }))
-    const wrapper = mount(AnnualPerformanceSummary, {
+    const wrapper = mount(AnnualPerformanceSummaryView, {
       props: { controller: controllerWith(fetcher as unknown as SummaryFetcher) },
     })
     await flushPromises()
@@ -173,7 +173,7 @@ describe('AnnualPerformanceSummary.vue', () => {
 
   it('omits the data-delay badge when data_delay is false', async () => {
     fetcher.mockResolvedValueOnce(makeData({ data_delay: false }))
-    const wrapper = mount(AnnualPerformanceSummary, {
+    const wrapper = mount(AnnualPerformanceSummaryView, {
       props: { controller: controllerWith(fetcher as unknown as SummaryFetcher) },
     })
     await flushPromises()
@@ -189,7 +189,7 @@ describe('AnnualPerformanceSummary.vue', () => {
       return makeData({ period_type: 'current_year', history_start_year: null })
     })
     const controller = controllerWith(fetcher as unknown as SummaryFetcher)
-    const wrapper = mount(AnnualPerformanceSummary, { props: { controller } })
+    const wrapper = mount(AnnualPerformanceSummaryView, { props: { controller } })
     await flushPromises()
 
     expect(wrapper.find('[data-testid="history-start-note"]').exists()).toBe(false)
@@ -201,7 +201,7 @@ describe('AnnualPerformanceSummary.vue', () => {
 
   it('switches period tab by calling controller.load and updates aria-selected', async () => {
     fetcher.mockImplementation(async ({ periodType }) => makeData({ period_type: periodType }))
-    const wrapper = mount(AnnualPerformanceSummary, {
+    const wrapper = mount(AnnualPerformanceSummaryView, {
       props: { controller: controllerWith(fetcher as unknown as SummaryFetcher) },
     })
     await flushPromises()
@@ -220,7 +220,7 @@ describe('AnnualPerformanceSummary.vue', () => {
   it('renders skeleton placeholders while loading and hides them after success', async () => {
     const pending = makePending<AnnualPerformanceSummary>()
     fetcher.mockReturnValueOnce(pending.promise)
-    const wrapper = mount(AnnualPerformanceSummary, {
+    const wrapper = mount(AnnualPerformanceSummaryView, {
       props: { controller: controllerWith(fetcher as unknown as SummaryFetcher) },
     })
     await wrapper.vm.$nextTick()
@@ -239,7 +239,7 @@ describe('AnnualPerformanceSummary.vue', () => {
     fetcher
       .mockRejectedValueOnce(new Error('boom'))
       .mockResolvedValueOnce(makeData())
-    const wrapper = mount(AnnualPerformanceSummary, {
+    const wrapper = mount(AnnualPerformanceSummaryView, {
       props: { controller: controllerWith(fetcher as unknown as SummaryFetcher) },
     })
     await flushPromises()
@@ -260,7 +260,7 @@ describe('AnnualPerformanceSummary.vue', () => {
   it('collapses retry after 3 consecutive failures with the long-form message', async () => {
     fetcher.mockRejectedValue(new Error('boom'))
     const controller = controllerWith(fetcher as unknown as SummaryFetcher)
-    const wrapper = mount(AnnualPerformanceSummary, { props: { controller } })
+    const wrapper = mount(AnnualPerformanceSummaryView, { props: { controller } })
     await flushPromises()
     await controller.retry()
     await flushPromises()
@@ -277,7 +277,7 @@ describe('AnnualPerformanceSummary.vue', () => {
     fetcher.mockRejectedValueOnce(
       new BizError('E_RM_PERF_FORBIDDEN', 'rm_perf_forbidden', '无权查看其他客户经理业绩'),
     )
-    const wrapper = mount(AnnualPerformanceSummary, {
+    const wrapper = mount(AnnualPerformanceSummaryView, {
       props: { controller: controllerWith(fetcher as unknown as SummaryFetcher) },
     })
     await flushPromises()
@@ -296,7 +296,7 @@ describe('AnnualPerformanceSummary.vue', () => {
         income: '0',
       }),
     )
-    const wrapper = mount(AnnualPerformanceSummary, {
+    const wrapper = mount(AnnualPerformanceSummaryView, {
       props: { controller: controllerWith(fetcher as unknown as SummaryFetcher) },
     })
     await flushPromises()
