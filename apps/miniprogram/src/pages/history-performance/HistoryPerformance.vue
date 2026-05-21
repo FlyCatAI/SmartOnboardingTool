@@ -19,9 +19,8 @@
     <text class="hp-page-title" data-testid="page-title">历史业绩</text>
     <view class="hp-summary-slot" data-testid="annual-summary-slot">
       <AnnualPerformanceSummary
-        v-if="controller"
-        :controller="controller"
-        :on-card-navigate="onCardNavigate"
+        :controller="summaryController"
+        :on-card-navigate="handleCardNavigate"
       />
     </view>
     <view class="hp-detail-filter" data-testid="detail-filter" :data-filter="detailType">
@@ -31,10 +30,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import AnnualPerformanceSummary from '../../components/annual-performance-summary/AnnualPerformanceSummary.vue'
-import type { AnnualSummaryController } from '../../components/annual-performance-summary/controller'
+import {
+  createAnnualSummaryController,
+  type AnnualSummaryController,
+} from '../../components/annual-performance-summary/controller'
 import type { CardRoute } from '../../components/annual-performance-summary/card-routes'
+import { navigateToCardRoute } from '../../components/annual-performance-summary/card-routes'
 import { parseHistoryPerformanceType, type HistoryDetailType } from './route'
 import { sessionStore } from '../../store/session'
 
@@ -44,12 +48,29 @@ const props = defineProps<{
   onCardNavigate?: (route: CardRoute) => void
 }>()
 
+type HistoryPerformanceQuery = Record<string, string | string[] | undefined>
+
+const routeQuery = ref<HistoryPerformanceQuery>(props.query ?? {})
+const summaryController = props.controller ?? createAnnualSummaryController()
+
+onLoad((query) => {
+  routeQuery.value = (query ?? {}) as HistoryPerformanceQuery
+})
+
 const canAccess = computed(() => {
   const info = sessionStore.current()
   return info?.employee.role === 'RELATIONSHIP_MANAGER'
 })
 
-const detailType = computed<HistoryDetailType>(() => parseHistoryPerformanceType(props.query?.type))
+const detailType = computed<HistoryDetailType>(() => parseHistoryPerformanceType(routeQuery.value.type))
+
+function handleCardNavigate(route: CardRoute) {
+  if (props.onCardNavigate) {
+    props.onCardNavigate(route)
+    return
+  }
+  navigateToCardRoute(route)
+}
 </script>
 
 <style scoped>

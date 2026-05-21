@@ -20,6 +20,10 @@ export interface CardRoute {
   query?: Record<string, string>
 }
 
+interface UniNavigator {
+  navigateTo(options: { url: string }): void
+}
+
 export function cardRoute(key: SummaryMetricKey): CardRoute | null {
   switch (key) {
     case 'new_merchants':
@@ -33,4 +37,20 @@ export function cardRoute(key: SummaryMetricKey): CardRoute | null {
     case 'aum_total':
       return null
   }
+}
+
+export function cardRouteToUrl(route: CardRoute): string {
+  const entries = Object.entries(route.query ?? {})
+  if (entries.length === 0) return route.path
+
+  const qs = entries
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+    .join('&')
+  return `${route.path}?${qs}`
+}
+
+export function navigateToCardRoute(route: CardRoute): void {
+  const uniNavigator = (globalThis as { uni?: UniNavigator }).uni
+  if (!uniNavigator) return
+  uniNavigator.navigateTo({ url: cardRouteToUrl(route) })
 }

@@ -155,7 +155,12 @@
 import { computed, onMounted, onBeforeUnmount, reactive } from 'vue'
 import type { AnnualSummaryController, AnnualSummaryState } from './controller'
 import type { PeriodType } from '../../services/performance-summary'
-import { cardRoute, type SummaryMetricKey, type CardRoute } from './card-routes'
+import {
+  cardRoute,
+  navigateToCardRoute,
+  type SummaryMetricKey,
+  type CardRoute,
+} from './card-routes'
 import { formatMoneyYuan } from '../../utils/money-format'
 import { formatUpdatedAt } from '../../utils/date-format'
 
@@ -202,9 +207,12 @@ function retry() {
 
 function navigate(key: SummaryMetricKey) {
   const route = cardRoute(key)
-  if (route && props.onCardNavigate) {
+  if (!route) return
+  if (props.onCardNavigate) {
     props.onCardNavigate(route)
+    return
   }
+  navigateToCardRoute(route)
 }
 
 </script>
@@ -215,9 +223,9 @@ function navigate(key: SummaryMetricKey) {
   flex-direction: column;
   gap: var(--aps-space-4, 16px);
   padding: var(--aps-space-4, 16px);
-  background: var(--aps-color-bg, #f4f6fa);
+  background: var(--aps-color-bg);
   font-family: var(--aps-font-body, 'Noto Sans SC', sans-serif);
-  color: var(--aps-color-text, #253047);
+  color: var(--aps-color-text);
 }
 
 .aps-header {
@@ -231,12 +239,12 @@ function navigate(key: SummaryMetricKey) {
   font-family: var(--aps-font-heading, 'IBM Plex Sans', sans-serif);
   font-size: 20px;
   font-weight: 700;
-  color: var(--aps-color-ink, #172033);
+  color: var(--aps-color-ink);
 }
 
 .aps-updated-at {
   font-size: 13px;
-  color: var(--aps-color-muted, #5c667a);
+  color: var(--aps-color-muted);
 }
 
 .aps-warning-pill {
@@ -244,8 +252,8 @@ function navigate(key: SummaryMetricKey) {
   align-items: center;
   padding: 3px 10px;
   font-size: 12px;
-  color: var(--aps-color-warning, #a85f00);
-  background: var(--aps-color-warning-soft, #fff2d5);
+  color: var(--aps-color-warning);
+  background: var(--aps-color-warning-soft);
   border-radius: var(--aps-radius-pill, 999px);
 }
 
@@ -256,7 +264,7 @@ function navigate(key: SummaryMetricKey) {
 .aps-tabs {
   display: inline-flex;
   padding: 4px;
-  background: #edf2f8;
+  background: var(--aps-color-tab-bg);
   border-radius: var(--aps-radius-pill, 999px);
   align-self: flex-start;
 }
@@ -267,22 +275,22 @@ function navigate(key: SummaryMetricKey) {
   background: transparent;
   padding: 6px 16px;
   font-size: 14px;
-  color: var(--aps-color-muted, #5c667a);
+  color: var(--aps-color-muted);
   border-radius: var(--aps-radius-pill, 999px);
   cursor: pointer;
   font-family: inherit;
 }
 
 .aps-tab--selected {
-  background: var(--aps-color-surface, #ffffff);
-  color: var(--aps-color-primary, #1f62d8);
+  background: var(--aps-color-surface);
+  color: var(--aps-color-primary);
   font-weight: 700;
-  box-shadow: 0 2px 8px rgba(23, 32, 51, 0.1);
+  box-shadow: var(--aps-shadow-tab-selected);
 }
 
 .aps-tab:focus-visible {
   outline: none;
-  box-shadow: var(--aps-shadow-focus, 0 0 0 3px rgba(11, 95, 255, 0.22));
+  box-shadow: var(--aps-shadow-focus);
 }
 
 .aps-p1-grid {
@@ -300,8 +308,8 @@ function navigate(key: SummaryMetricKey) {
 
 .aps-card {
   appearance: none;
-  border: 1px solid var(--aps-color-line, #d9e0ea);
-  background: var(--aps-color-surface, #ffffff);
+  border: 1px solid var(--aps-color-line);
+  background: var(--aps-color-surface);
   border-radius: var(--aps-radius-md, 8px);
   padding: var(--aps-space-4, 16px);
   display: flex;
@@ -315,27 +323,27 @@ function navigate(key: SummaryMetricKey) {
 }
 
 .aps-card:hover {
-  background: var(--aps-color-surface-raised, #fbfcff);
-  border-color: var(--aps-color-primary, #1f62d8);
-  box-shadow: var(--aps-shadow-card-hover, 0 10px 28px rgba(23, 32, 51, 0.12));
+  background: var(--aps-color-surface-raised);
+  border-color: var(--aps-color-primary);
+  box-shadow: var(--aps-shadow-card-hover);
 }
 
 .aps-card:focus-visible {
   outline: none;
-  box-shadow: var(--aps-shadow-focus, 0 0 0 3px rgba(11, 95, 255, 0.22));
+  box-shadow: var(--aps-shadow-focus);
 }
 
 .aps-card-label {
   font-size: 14px;
   font-weight: 500;
-  color: var(--aps-color-muted, #5c667a);
+  color: var(--aps-color-muted);
 }
 
 .aps-card-value {
   font-family: var(--aps-font-number, 'IBM Plex Sans Condensed', sans-serif);
   font-size: 32px;
   font-weight: 700;
-  color: var(--aps-color-ink, #172033);
+  color: var(--aps-color-ink);
 }
 
 .aps-card-value--money {
@@ -343,8 +351,8 @@ function navigate(key: SummaryMetricKey) {
 }
 
 .aps-aum-card {
-  border: 1px dashed var(--aps-color-line-strong, #bfc9d8);
-  background: #fafbfd;
+  border: 1px dashed var(--aps-color-line-strong);
+  background: var(--aps-color-aum-surface);
   border-radius: var(--aps-radius-md, 8px);
   padding: var(--aps-space-4, 16px);
   display: flex;
@@ -355,12 +363,12 @@ function navigate(key: SummaryMetricKey) {
 }
 
 .aps-aum-card--null .aps-card-value {
-  color: var(--aps-color-muted, #5c667a);
+  color: var(--aps-color-muted);
 }
 
 .aps-aum-helper {
   font-size: 13px;
-  color: var(--aps-color-subtle, #7d8798);
+  color: var(--aps-color-subtle);
 }
 
 .aps-skeleton {
@@ -372,7 +380,7 @@ function navigate(key: SummaryMetricKey) {
 .aps-skeleton-card {
   min-height: 128px;
   border-radius: var(--aps-radius-md, 8px);
-  background: var(--aps-color-skeleton-base, #e7ecf3);
+  background: var(--aps-color-skeleton-base);
   animation: aps-skeleton-pulse 1200ms infinite ease-in-out;
 }
 
@@ -393,8 +401,8 @@ function navigate(key: SummaryMetricKey) {
 }
 
 .aps-error {
-  background: var(--aps-color-surface, #ffffff);
-  border: 1px solid var(--aps-color-line, #d9e0ea);
+  background: var(--aps-color-surface);
+  border: 1px solid var(--aps-color-line);
   border-radius: var(--aps-radius-md, 8px);
   padding: var(--aps-space-4, 16px);
   display: flex;
@@ -403,7 +411,7 @@ function navigate(key: SummaryMetricKey) {
   justify-content: center;
   gap: var(--aps-space-3, 12px);
   min-height: 128px;
-  color: var(--aps-color-danger, #b42318);
+  color: var(--aps-color-danger);
 }
 
 .aps-error-message {
@@ -413,8 +421,8 @@ function navigate(key: SummaryMetricKey) {
 .aps-retry {
   appearance: none;
   border: 0;
-  background: var(--aps-color-primary, #1f62d8);
-  color: #ffffff;
+  background: var(--aps-color-primary);
+  color: var(--aps-color-on-primary);
   padding: 8px 20px;
   font-size: 14px;
   font-weight: 600;
@@ -425,18 +433,18 @@ function navigate(key: SummaryMetricKey) {
 }
 
 .aps-retry:hover {
-  background: var(--aps-color-primary-hover, #174eb5);
+  background: var(--aps-color-primary-hover);
 }
 
 .aps-retry:active {
-  background: var(--aps-color-primary-pressed, #103f95);
+  background: var(--aps-color-primary-pressed);
 }
 
 .aps-forbidden {
   padding: var(--aps-space-4, 16px);
   text-align: center;
-  color: var(--aps-color-danger, #b42318);
-  background: var(--aps-color-danger-soft, #fde8e5);
+  color: var(--aps-color-danger);
+  background: var(--aps-color-danger-soft);
   border-radius: var(--aps-radius-md, 8px);
 }
 </style>

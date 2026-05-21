@@ -5,8 +5,13 @@
 //   - 「P1 指标 - 总收入」  - 点击「总收入」卡片
 //   - 「P2 指标 - 资产总计」 - 资产总计卡片不可点击
 
-import { describe, it, expect } from 'vitest'
-import { cardRoute, type SummaryMetricKey } from '../../src/components/annual-performance-summary/card-routes'
+import { describe, it, expect, vi, afterEach } from 'vitest'
+import {
+  cardRoute,
+  cardRouteToUrl,
+  navigateToCardRoute,
+  type SummaryMetricKey,
+} from '../../src/components/annual-performance-summary/card-routes'
 
 describe('cardRoute', () => {
   it('routes new_merchants to /history-performance without type (Q-7: type=new cancelled)', () => {
@@ -42,4 +47,23 @@ describe('cardRoute', () => {
       expect(route?.query?.type).not.toBe('new')
     }
   })
+
+  it('serializes route query for the default uni.navigateTo handler', () => {
+    expect(cardRouteToUrl({ path: '/history-performance', query: { type: 'qualified' } })).toBe(
+      '/history-performance?type=qualified',
+    )
+  })
+
+  it('uses uni.navigateTo when no injected card navigation handler is supplied', () => {
+    const navigateTo = vi.fn()
+    ;(globalThis as { uni?: { navigateTo: typeof navigateTo } }).uni = { navigateTo }
+
+    navigateToCardRoute({ path: '/history-performance', query: { type: 'active' } })
+
+    expect(navigateTo).toHaveBeenCalledWith({ url: '/history-performance?type=active' })
+  })
+})
+
+afterEach(() => {
+  delete (globalThis as { uni?: unknown }).uni
 })

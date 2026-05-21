@@ -8,7 +8,8 @@
 // View layer binds the existing framework-agnostic controller to a uni-app
 // Vue 3 SFC. This test covers the .vue component shell.
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import AnnualPerformanceSummaryView from '../../src/components/annual-performance-summary/AnnualPerformanceSummary.vue'
 import {
@@ -54,6 +55,11 @@ describe('AnnualPerformanceSummary.vue', () => {
 
   beforeEach(() => {
     fetcher = vi.fn()
+    delete (globalThis as { uni?: unknown }).uni
+  })
+
+  afterEach(() => {
+    delete (globalThis as { uni?: unknown }).uni
   })
 
   it('renders the section title, tabs and four P1 card labels after successful load', async () => {
@@ -158,6 +164,20 @@ describe('AnnualPerformanceSummary.vue', () => {
       query: { type: 'active' },
     })
     expect(onNavigate).toHaveBeenNthCalledWith(4, { path: '/income-details' })
+  })
+
+  it('falls back to uni.navigateTo when no card navigation handler is injected', async () => {
+    fetcher.mockResolvedValue(makeData())
+    const navigateTo = vi.fn()
+    ;(globalThis as { uni?: { navigateTo: typeof navigateTo } }).uni = { navigateTo }
+    const wrapper = mount(AnnualPerformanceSummaryView, {
+      props: { controller: controllerWith(fetcher as unknown as SummaryFetcher) },
+    })
+    await flushPromises()
+
+    await wrapper.find('[data-testid="card-qualified-merchants"]').trigger('click')
+
+    expect(navigateTo).toHaveBeenCalledWith({ url: '/history-performance?type=qualified' })
   })
 
   it('renders the data-delay badge only when data_delay is true', async () => {
@@ -305,5 +325,16 @@ describe('AnnualPerformanceSummary.vue', () => {
     expect(wrapper.find('[data-testid="card-income"]').text()).toContain('¥0.00 元')
     expect(wrapper.find('[data-testid="error-panel"]').exists()).toBe(false)
     expect(wrapper.find('[data-testid="summary-skeleton"]').exists()).toBe(false)
+  })
+
+  it('keeps component colors and shadows behind --aps-* CSS tokens', () => {
+    const source = readFileSync(
+      'src/components/annual-performance-summary/AnnualPerformanceSummary.vue',
+      'utf8',
+    )
+    const style = source.match(/<style scoped>([\s\S]*)<\/style>/)?.[1] ?? ''
+
+    expect(style).not.toMatch(/#[0-9a-fA-F]{3,8}/)
+    expect(style).not.toMatch(/rgba?\(/)
   })
 })

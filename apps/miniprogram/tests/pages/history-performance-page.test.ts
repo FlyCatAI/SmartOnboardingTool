@@ -7,11 +7,23 @@
 // View layer page for /history-performance (uni-app .vue). Hosts the annual
 // summary at the top and parses `type` query into a detail filter token.
 
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import HistoryPerformance from '../../src/pages/history-performance/HistoryPerformance.vue'
 import { sessionStore } from '../../src/store/session'
 import type { SessionInfo } from '../../src/services/auth'
+import { setPlatformAdapter, type PlatformAdapter, type RequestOptions } from '../../src/services/http'
+import type { AnnualPerformanceSummary } from '../../src/services/performance-summary'
+
+const uniAppHooks = vi.hoisted(() => ({
+  loadHandler: null as null | ((query?: Record<string, string | string[] | undefined>) => void),
+}))
+
+vi.mock('@dcloudio/uni-app', () => ({
+  onLoad: (fn: (query?: Record<string, string | string[] | undefined>) => void) => {
+    uniAppHooks.loadHandler = fn
+  },
+}))
 
 function rmSession(): SessionInfo {
   return {
@@ -41,18 +53,65 @@ function leaderSession(): SessionInfo {
   }
 }
 
+function makeSummaryData(overrides: Partial<AnnualPerformanceSummary> = {}): AnnualPerformanceSummary {
+  return {
+    period_type: 'current_year',
+    employee_id: 'RM001',
+    new_merchants: 12,
+    qualified_merchants: 8,
+    active_merchants: 6,
+    income: '1234567.89',
+    aum_total: null,
+    updated_at: '2026-05-20T02:30:00+08:00',
+    data_delay: false,
+    history_start_year: null,
+    ...overrides,
+  }
+}
+
+let lastRequest: RequestOptions | null = null
+const requestSpy = vi.fn(async (opts: RequestOptions) => {
+  lastRequest = opts
+  return {
+    status: 200,
+    body: {
+      code: '0000',
+      slug: 'ok',
+      data: makeSummaryData(),
+    },
+  }
+})
+
+const fakeAdapter: PlatformAdapter = {
+  request: requestSpy as unknown as PlatformAdapter['request'],
+  getSessionToken: vi.fn(() => 'fake-token'),
+  clearSessionToken: vi.fn(),
+  navigateToLogin: vi.fn(),
+}
+
 describe('HistoryPerformance.vue', () => {
   beforeEach(() => {
     sessionStore.set(null)
+    setPlatformAdapter(fakeAdapter)
+    requestSpy.mockClear()
+    lastRequest = null
+    uniAppHooks.loadHandler = null
+    delete (globalThis as { uni?: unknown }).uni
   })
 
-  it('renders the annual summary component at the top for a relationship manager', async () => {
+  afterEach(() => {
+    delete (globalThis as { uni?: unknown }).uni
+  })
+
+  it('creates and renders the annual summary component at the top for a relationship manager', async () => {
     sessionStore.set(rmSession())
-    const wrapper = mount(HistoryPerformance, { props: { query: {} } })
+    const wrapper = mount(HistoryPerformance)
     await flushPromises()
 
     expect(wrapper.find('[data-testid="page-title"]').text()).toContain('历史业绩')
     expect(wrapper.find('[data-testid="annual-summary-slot"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="card-new-merchants"]').exists()).toBe(true)
+    expect(lastRequest?.url).toBe('/api/v1/performance/annual-summary?period_type=current_year')
     expect(wrapper.find('[data-testid="permission-block"]').exists()).toBe(false)
   })
 
@@ -91,6 +150,29 @@ describe('HistoryPerformance.vue', () => {
     await flushPromises()
 
     expect(wrapper.find('[data-testid="detail-filter"]').attributes('data-filter')).toBe('active')
+  })
+
+  it('reads type from the real uni-app onLoad route options when no query prop is injected', async () => {
+    sessionStore.set(rmSession())
+    const wrapper = mount(HistoryPerformance)
+    await flushPromises()
+
+    uniAppHooks.loadHandler?.({ type: 'active' })
+    await flushPromises()
+
+    expect(wrapper.find('[data-testid="detail-filter"]').attributes('data-filter')).toBe('active')
+  })
+
+  it('uses default uni.navigateTo for P1 cards when no navigation prop is injected', async () => {
+    sessionStore.set(rmSession())
+    const navigateTo = vi.fn()
+    ;(globalThis as { uni?: { navigateTo: typeof navigateTo } }).uni = { navigateTo }
+    const wrapper = mount(HistoryPerformance)
+    await flushPromises()
+
+    await wrapper.find('[data-testid="card-active-merchants"]').trigger('click')
+
+    expect(navigateTo).toHaveBeenCalledWith({ url: '/history-performance?type=active' })
   })
 
   it('treats type=new (deprecated) and unknown values as default', async () => {
