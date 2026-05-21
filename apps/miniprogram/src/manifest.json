@@ -1,0 +1,23 @@
+{
+  "name": "RM 展业",
+  "appid": "__UNI__RM_DEMO",
+  "description": "RM 展业小程序 — annual-performance-summary E2E build",
+  "versionName": "0.1.0",
+  "versionCode": "100",
+  "h5": {
+    "title": "RM 展业",
+    "router": {
+      "base": "./"
+    },
+    "publicPath": "./"
+  },
+  "mp-weixin": {
+    "appid": "wxPLACEHOLDER_REPLACE_ME",
+    "setting": {
+      "urlCheck": false,
+      "es6": true,
+      "minified": true
+    }
+  },
+  "vueVersion": "3"
+}

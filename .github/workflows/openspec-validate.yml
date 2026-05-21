@@ -2,15 +2,22 @@ name: openspec-validate
 
 on:
   pull_request:
-    branches: [main, change/**]
+    branches: [main, "change/**"]
     paths:
       - 'openspec/**'
       - 'package.json'
       - 'package-lock.json'
+      - '.github/workflows/openspec-validate.yml'
   push:
-    branches: [main, change/**]
+    branches: [main, "change/**"]
     paths:
       - 'openspec/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/openspec-validate.yml'
+
+permissions:
+  contents: read
 
 jobs:
   validate:
@@ -24,6 +31,7 @@ jobs:
       - run: npm ci
       - name: Validate all OpenSpec changes
         run: |
+          set -e
           for dir in openspec/changes/*/; do
             slug=$(basename "$dir")
             echo "--- validating $slug ---"

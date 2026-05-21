@@ -1,0 +1,16 @@
+{
+  "pages": [
+    {
+      "path": "pages/history-performance/HistoryPerformance",
+      "style": {
+        "navigationBarTitleText": "历史业绩"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "RM 展业",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f5f7fa"
+  }
+}

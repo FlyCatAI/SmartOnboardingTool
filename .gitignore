@@ -7,6 +7,12 @@ CLAUDE.md
 # Node toolchain (openspec is pinned in package.json; install with `npm install`)
 node_modules/
 
+# Backend Maven build output
+apps/backend/target/
+
+# Frontend build artifacts (H5 / mini-program dist; produced by deploy/scripts/build-miniprogram.sh)
+apps/miniprogram/dist/
+
 # OS / editor noise
 .DS_Store
 Thumbs.db

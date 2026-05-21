@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+  external_labels:
+    cluster: rm-test
+    app: rm-backend
+
+scrape_configs:
+  - job_name: rm-backend
+    metrics_path: /actuator/prometheus
+    scheme: http
+    static_configs:
+      - targets:
+          - backend:8080
+        labels:
+          service: rm-backend
+          env: test

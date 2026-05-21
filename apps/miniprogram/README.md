@@ -42,4 +42,31 @@ src/
 
 ## 如何启动
 
-待技术栈评审通过、补 `package.json` 与 `vite.config.ts` / `manifest.json` 后由开发团队补充。
+### 单元测试 / 类型检查（已落地）
+
+```bash
+cd apps/miniprogram
+npm ci
+npm test          # vitest, 72 / 72 passing
+npm run typecheck # vue-tsc --noEmit, 0 error
+npm audit         # 0 vulnerabilities
+```
+
+### H5 / 微信小程序构建产物
+
+构建依赖（uni-app CLI、vite、各端 runtime）**不写入** `package.json`，以保护当前审计基线
+（`npm audit` total=0）。改由 `deploy/scripts/build-miniprogram.sh` 沙箱化安装：
+
+```bash
+# 从仓库根目录
+deploy/scripts/build-miniprogram.sh             # 同时产 H5 + WeChat
+deploy/scripts/build-miniprogram.sh h5          # 仅 H5
+deploy/scripts/build-miniprogram.sh mp-weixin   # 仅 WeChat
+```
+
+产物：
+- `apps/miniprogram/dist/build/h5/` — H5 静态资源（可部署到任意静态 host）
+- `apps/miniprogram/dist/build/mp-weixin/` — 微信开发者工具直接导入
+
+CI（`.github/workflows/miniprogram-ci.yml`）在 `build-h5` 与 `build-mp-weixin`
+job 中调用相同脚本，并把产物作为 GitHub Actions artifact 上传供测试执行 Agent 拉取。

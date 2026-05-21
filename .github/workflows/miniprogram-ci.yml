@@ -1,0 +1,100 @@
+name: miniprogram-ci
+
+on:
+  pull_request:
+    branches: [main, "change/**"]
+    paths:
+      - 'apps/miniprogram/**'
+      - '.github/workflows/miniprogram-ci.yml'
+  push:
+    branches: [main, "change/**"]
+    paths:
+      - 'apps/miniprogram/**'
+      - '.github/workflows/miniprogram-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  guards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No console.log in production sources
+        run: |
+          if grep -rn --include='*.ts' --include='*.vue' -E '^[^/]*console\.log' apps/miniprogram/src; then
+            echo "::error::console.log present in source — please remove."
+            exit 1
+          fi
+      - name: TaskStatus enum strings agree with backend
+        run: |
+          set -e
+          fe=apps/miniprogram/src/utils/task-status.ts
+          be=apps/backend/src/main/java/com/flycat/rm/task/TaskStatus.java
+          for name in PENDING_DISPATCH PENDING_CLAIM PENDING_HANDLE IN_PROGRESS PENDING_CONFIRM DONE CLOSED; do
+            grep -q "$name" "$fe" || { echo "::error::$name missing in $fe"; exit 1; }
+            grep -q "$name" "$be" || { echo "::error::$name missing in $be"; exit 1; }
+          done
+
+  test:
+    runs-on: ubuntu-latest
+    needs: guards
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/miniprogram/package-lock.json
+      - name: npm ci
+        working-directory: apps/miniprogram
+        run: npm ci
+      - name: npm test
+        working-directory: apps/miniprogram
+        run: npm test --silent
+      - name: typecheck
+        working-directory: apps/miniprogram
+        run: npm run typecheck
+      - name: npm audit (fail on high+)
+        working-directory: apps/miniprogram
+        run: npm audit --audit-level=high
+
+  build-h5:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/miniprogram/package-lock.json
+      - name: Build H5 via sandboxed build deps
+        run: deploy/scripts/build-miniprogram.sh h5
+      - name: Upload H5 dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: miniprogram-h5-dist
+          path: apps/miniprogram/dist/build/h5
+          if-no-files-found: error
+          retention-days: 14
+
+  build-mp-weixin:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/miniprogram/package-lock.json
+      - name: Build WeChat mini-program via sandboxed build deps
+        run: deploy/scripts/build-miniprogram.sh mp-weixin
+      - name: Upload WeChat mini-program dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: miniprogram-mp-weixin-dist
+          path: apps/miniprogram/dist/build/mp-weixin
+          if-no-files-found: error
+          retention-days: 14
