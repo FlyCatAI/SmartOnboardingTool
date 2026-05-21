@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flycat.rm.performance.adapter.mybatis.PerformanceSnapshotMapper">
+
+    <resultMap id="snapshotRow" type="com.flycat.rm.performance.adapter.mybatis.PerformanceSnapshotRow">
+        <result property="employeeId" column="employee_id"/>
+        <result property="periodType" column="period_type"/>
+        <result property="bizDate" column="biz_date"/>
+        <result property="newMerchants" column="new_merchants"/>
+        <result property="qualifiedMerchants" column="qualified_merchants"/>
+        <result property="activeMerchants" column="active_merchants"/>
+        <result property="incomeAmount" column="income_amount"/>
+        <result property="batchFinishedAt" column="batch_finished_at"
+                javaType="java.time.OffsetDateTime"/>
+        <result property="delayed" column="is_delayed"/>
+    </resultMap>
+
+    <select id="findLatest" resultMap="snapshotRow">
+        SELECT
+            employee_id,
+            period_type,
+            biz_date,
+            new_merchants,
+            qualified_merchants,
+            active_merchants,
+            income_amount,
+            batch_finished_at,
+            is_delayed
+        FROM rm_latest_perf_summary_snapshot
+        WHERE employee_id = #{employeeId}
+          AND period_type = #{periodType}
+    </select>
+</mapper>

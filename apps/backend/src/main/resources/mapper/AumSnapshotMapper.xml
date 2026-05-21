@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flycat.rm.performance.adapter.mybatis.AumSnapshotMapper">
+
+    <select id="findLatest" resultType="java.math.BigDecimal">
+        SELECT aum_total
+        FROM rm_aum_snapshot
+        WHERE employee_id = #{employeeId}
+          AND aum_total IS NOT NULL
+        ORDER BY biz_date DESC
+        LIMIT 1
+    </select>
+</mapper>
