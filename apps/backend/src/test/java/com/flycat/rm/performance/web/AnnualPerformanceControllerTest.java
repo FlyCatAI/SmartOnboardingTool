@@ -119,7 +119,7 @@ class AnnualPerformanceControllerTest {
 
         mockMvc.perform(get("/api/v1/performance/annual-summary").param("period_type", "current_year"))
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.code", equalTo("6001")))
+                .andExpect(jsonPath("$.code", equalTo("E_RM_PERF_FORBIDDEN")))
                 .andExpect(jsonPath("$.slug", equalTo("rm_perf_forbidden")));
     }
 

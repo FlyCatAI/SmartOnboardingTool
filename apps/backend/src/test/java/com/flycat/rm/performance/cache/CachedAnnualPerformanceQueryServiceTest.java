@@ -71,6 +71,14 @@ class CachedAnnualPerformanceQueryServiceTest {
         when(aumRepository.findLatest(employeeId)).thenReturn(Optional.empty());
     }
 
+    private PerformanceSnapshot snapshot(
+            String employeeId, PeriodType pt, LocalDate bizDate, String income) {
+        return new PerformanceSnapshot(
+                employeeId, pt, bizDate,
+                1, 2, 3, new BigDecimal(income),
+                BATCH_T, false);
+    }
+
     @Test
     void second_identical_call_hits_cache_and_skips_repository() {
         primeRepo("RM001", PeriodType.CURRENT_YEAR, LocalDate.of(2026, 5, 19), "100.00");
@@ -83,6 +91,25 @@ class CachedAnnualPerformanceQueryServiceTest {
         verify(snapshotRepository).findLatest("RM001", PeriodType.CURRENT_YEAR);
         verify(aumRepository).findLatest("RM001");
         verifyNoMoreInteractions(snapshotRepository, aumRepository);
+    }
+
+    @Test
+    void newer_snapshot_biz_date_uses_new_cache_entry_without_manual_eviction() {
+        when(snapshotRepository.findLatest("RM001", PeriodType.CURRENT_YEAR))
+                .thenReturn(
+                        Optional.of(snapshot(
+                                "RM001", PeriodType.CURRENT_YEAR,
+                                LocalDate.of(2026, 5, 19), "111.11")),
+                        Optional.of(snapshot(
+                                "RM001", PeriodType.CURRENT_YEAR,
+                                LocalDate.of(2026, 5, 20), "222.22")));
+        when(aumRepository.findLatest("RM001")).thenReturn(Optional.empty());
+
+        SummaryResult first = cached.getSummary(CALLER, Optional.empty(), PeriodType.CURRENT_YEAR);
+        SummaryResult second = cached.getSummary(CALLER, Optional.empty(), PeriodType.CURRENT_YEAR);
+
+        assertThat(first.income()).isEqualByComparingTo("111.11");
+        assertThat(second.income()).isEqualByComparingTo("222.22");
     }
 
     @Test

@@ -149,7 +149,7 @@ class AnnualPerformanceIntegrationTest {
 
         mockMvc.perform(get("/api/v1/performance/annual-summary").param("period_type", "current_year"))
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.code", equalTo("6001")))
+                .andExpect(jsonPath("$.code", equalTo("E_RM_PERF_FORBIDDEN")))
                 .andExpect(jsonPath("$.slug", equalTo("rm_perf_forbidden")));
 
         assertThat(auditLog.events)
@@ -165,7 +165,7 @@ class AnnualPerformanceIntegrationTest {
                         .param("period_type", "current_year")
                         .param("employee_id", "RM999"))
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.code", equalTo("6001")));
+                .andExpect(jsonPath("$.code", equalTo("E_RM_PERF_FORBIDDEN")));
 
         assertThat(auditLog.events)
                 .anyMatch(e -> "cross_employee_attempt".equals(e.action()));
@@ -213,6 +213,23 @@ class AnnualPerformanceIntegrationTest {
         mockMvc.perform(get("/api/v1/performance/annual-summary").param("period_type", "current_year"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.income", equalTo("111.11")));
+    }
+
+    @Test
+    void newer_snapshot_biz_date_is_not_hidden_by_existing_cache_entry() throws Exception {
+        insertSnapshot("RM001", "current_year", LocalDate.of(2026, 5, 19),
+                10, 5, 3, "111.11", BATCH_T, false);
+
+        mockMvc.perform(get("/api/v1/performance/annual-summary").param("period_type", "current_year"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.income", equalTo("111.11")));
+
+        insertSnapshot("RM001", "current_year", LocalDate.of(2026, 5, 20),
+                20, 10, 6, "222.22", BATCH_T.plusDays(1), false);
+
+        mockMvc.perform(get("/api/v1/performance/annual-summary").param("period_type", "current_year"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.income", equalTo("222.22")));
     }
 
     @Test
