@@ -30,6 +30,8 @@ css_variables:
     "--aps-color-bg": "#F4F6FA"
     "--aps-color-surface": "#FFFFFF"
     "--aps-color-surface-raised": "#FBFCFF"
+    "--aps-color-aum-surface": "#FAFBFD"
+    "--aps-color-tab-bg": "#EDF2F8"
     "--aps-color-ink": "#172033"
     "--aps-color-text": "#253047"
     "--aps-color-muted": "#5C667A"
@@ -38,6 +40,7 @@ css_variables:
     "--aps-color-line": "#D9E0EA"
     "--aps-color-line-strong": "#BFC9D8"
     "--aps-color-primary": "#1F62D8"
+    "--aps-color-on-primary": "#FFFFFF"
     "--aps-color-primary-hover": "#174EB5"
     "--aps-color-primary-pressed": "#103F95"
     "--aps-color-primary-soft": "#E7EEFB"
@@ -83,6 +86,7 @@ css_variables:
   shadow:
     "--aps-shadow-card": "0 8px 24px rgba(23, 32, 51, 0.08)"
     "--aps-shadow-card-hover": "0 10px 28px rgba(23, 32, 51, 0.12)"
+    "--aps-shadow-tab-selected": "0 2px 8px rgba(23, 32, 51, 0.10)"
     "--aps-shadow-focus": "0 0 0 3px rgba(11, 95, 255, 0.22)"
 
 typography:
@@ -245,13 +249,13 @@ components:
     default:
       height_mobile: "72rpx"
       height_desktop: "40px"
-      background: "#EDF2F8"
+      background: "var(--aps-color-tab-bg)"
       radius: "var(--aps-radius-pill)"
       text_color: "var(--aps-color-muted)"
     selected:
       background: "var(--aps-color-surface)"
       text_color: "var(--aps-color-primary)"
-      shadow: "0 2px 8px rgba(23, 32, 51, 0.10)"
+      shadow: "var(--aps-shadow-tab-selected)"
       font_weight: 700
     hover:
       text_color: "var(--aps-color-primary-hover)"
