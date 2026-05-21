@@ -11,8 +11,10 @@ Test/E2E environment artifacts for the annual-performance-summary stack.
 | `postgres/02-seed-q1-snapshot.sql` | Q-1 sample snapshot rows (4 RMs covering E5/E9/E11/E12) |
 | `prometheus/prometheus.yml` | Scrape config for `/actuator/prometheus` on the backend |
 
-The backend image is built from `apps/backend/Dockerfile`. CI publishes
-`ghcr.io/flycatai/rm-backend:<sha>`; local builds tag it `rm-backend:test`.
+The backend image is built from `apps/backend/Dockerfile`. CI (see
+`ci/workflows-pending/backend-ci.yml`) publishes `ghcr.io/flycatai/rm-backend:<sha>`
+once a repo admin promotes the workflow file into `.github/workflows/`.
+Local builds tag it `rm-backend:test`.
 
 ## Quick start (local)
 
