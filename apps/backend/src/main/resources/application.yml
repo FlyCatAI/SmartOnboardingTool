@@ -55,3 +55,15 @@ features:
 auth:
   test-principal:
     enabled: ${AUTH_TEST_PRINCIPAL_ENABLED:false}
+
+sso:
+  oidc:
+    enabled: ${SSO_OIDC_ENABLED:false}
+    token-endpoint: ${SSO_OIDC_TOKEN_ENDPOINT:}
+    userinfo-endpoint: ${SSO_OIDC_USERINFO_ENDPOINT:}
+    client-id: ${SSO_OIDC_CLIENT_ID:}
+    client-secret: ${SSO_OIDC_CLIENT_SECRET:}
+    redirect-uri: ${SSO_OIDC_REDIRECT_URI:}
+    connect-timeout: ${SSO_OIDC_CONNECT_TIMEOUT:2s}
+    read-timeout: ${SSO_OIDC_READ_TIMEOUT:5s}
+    role-claim: ${SSO_OIDC_ROLE_CLAIM:role}

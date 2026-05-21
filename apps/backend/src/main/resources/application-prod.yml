@@ -1,0 +1,14 @@
+auth:
+  test-principal:
+    # 生产强制关闭：缺 principal 走 fail-closed 401，不允许 X-Test-* header 注入
+    enabled: false
+
+sso:
+  oidc:
+    # 生产强制开启 OIDC 桥接；所有 endpoint / 凭据通过 env 注入（不在仓库中保留默认值）
+    enabled: true
+    token-endpoint: ${SSO_OIDC_TOKEN_ENDPOINT}
+    userinfo-endpoint: ${SSO_OIDC_USERINFO_ENDPOINT}
+    client-id: ${SSO_OIDC_CLIENT_ID}
+    client-secret: ${SSO_OIDC_CLIENT_SECRET}
+    redirect-uri: ${SSO_OIDC_REDIRECT_URI}
