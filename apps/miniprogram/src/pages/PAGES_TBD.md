@@ -1,6 +1,9 @@
 # 页面骨架占位
 
-5.2-5.12 各页面需结合最终选定的小程序框架（uni-app / 原生 / Taro）补 `.vue` 或 `.wxml`+`.js`。
+> **5/21 用户决策**：技术栈 = **uni-app**（Vue 3），新增页面优先落 `.vue` 实现，
+> 兼容微信 / 字节小程序构建。不再引入独立 React/TSX 路线。
+
+5.2-5.12 各页面在 uni-app 工程下补 `.vue` SFC（参考 `history-performance/HistoryPerformance.vue`）。
 
 | 目录 | 对应 spec | tasks.md 编号 |
 |---|---|---|
