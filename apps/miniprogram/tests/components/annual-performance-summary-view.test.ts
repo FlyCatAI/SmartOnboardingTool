@@ -274,7 +274,9 @@ describe('AnnualPerformanceSummary.vue', () => {
   })
 
   it('renders forbidden state and does not render summary cards on 403', async () => {
-    fetcher.mockRejectedValueOnce(new BizError('E_RM_PERF_FORBIDDEN', '无权查看其他客户经理业绩', 403))
+    fetcher.mockRejectedValueOnce(
+      new BizError('E_RM_PERF_FORBIDDEN', 'rm_perf_forbidden', '无权查看其他客户经理业绩'),
+    )
     const wrapper = mount(AnnualPerformanceSummary, {
       props: { controller: controllerWith(fetcher as unknown as SummaryFetcher) },
     })
