@@ -1,5 +1,7 @@
 package com.flycat.rm.common.rbac;
 
+import java.util.Optional;
+
 /**
  * 线程局部会话上下文。生产实现会由 SSO 拦截器在 servlet filter 中写入；
  * 测试可直接 push/pop。
@@ -12,6 +14,10 @@ public final class SecurityContext {
 
     public static void set(Principal principal) {
         CURRENT.set(principal);
+    }
+
+    public static Optional<Principal> current() {
+        return Optional.ofNullable(CURRENT.get());
     }
 
     public static Principal require() {

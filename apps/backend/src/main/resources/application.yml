@@ -51,3 +51,7 @@ management:
 features:
   annualPerformanceSummary:
     enabled: ${ANNUAL_PERFORMANCE_SUMMARY_ENABLED:true}
+
+auth:
+  test-principal:
+    enabled: ${AUTH_TEST_PRINCIPAL_ENABLED:false}

@@ -1,3 +1,7 @@
 spring:
   datasource:
     password: ${DB_PASSWORD:rm}
+
+auth:
+  test-principal:
+    enabled: ${AUTH_TEST_PRINCIPAL_ENABLED:true}

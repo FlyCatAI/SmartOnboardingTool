@@ -55,6 +55,7 @@ services:
       DB_PASSWORD: rm
       SERVER_PORT: "8080"
       ANNUAL_PERFORMANCE_SUMMARY_ENABLED: "true"
+      AUTH_TEST_PRINCIPAL_ENABLED: "true"
       JAVA_OPTS: "-XX:MaxRAMPercentage=75"
     ports:
       - "8080:8080"

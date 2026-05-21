@@ -137,6 +137,15 @@ class AnnualPerformanceControllerTest {
     }
 
     @Test
+    void missing_principal_returns_401_not_500() throws Exception {
+        SecurityContext.clear();
+
+        mockMvc.perform(get("/api/v1/performance/annual-summary").param("period_type", "current_year"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.slug", equalTo("unauthenticated")));
+    }
+
+    @Test
     void not_found_business_exception_returns_404() throws Exception {
         when(service.getSummary(any(), any(), any()))
                 .thenThrow(new BusinessException(ErrorCode.NOT_FOUND, "snapshot missing"));
