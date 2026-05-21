@@ -14,6 +14,7 @@ aggregation lives on the data side and only writes into
 | SPI port | Backing object | Read mode | SLA expectation |
 |---|---|---|---|
 | `PerformanceSnapshotRepository.findLatest(employeeId, periodType)` | View `rm_latest_perf_summary_snapshot` | `SELECT … WHERE employee_id = ? AND period_type = ?` (≤1 row) | P95 ≤ 50ms; backed by `idx_rm_perf_summary_employee_period_biz_desc` |
+| `PerformanceSnapshotRepository.findLatestBizDate(employeeId, periodType)` | View `rm_latest_perf_summary_snapshot` | `SELECT biz_date WHERE employee_id = ? AND period_type = ?` (≤1 row) | Lightweight cache namespace lookup for `(employee_id, period_type, snapshot_biz_date)` |
 | `AumSnapshotRepository.findLatest(employeeId)` | Table `rm_aum_snapshot` | `SELECT aum_total FROM rm_aum_snapshot WHERE employee_id = ? ORDER BY biz_date DESC LIMIT 1` | Optional. Missing row → `Optional.empty()`, never throws (Q-1 方案 B) |
 
 ### 1.1 `rm_latest_perf_summary_snapshot` column → DTO field
@@ -104,8 +105,9 @@ for:
 
 ## 5. Out of scope for this mapping
 
-- Cache layer (task 2.7) — keys must include `employee_id + period_type +
-  biz_date`, but cache wiring is deferred until 2.5 picks a framework.
+- Cache backend choice — task 2.7 uses Spring Cache with keys including
+  `employee_id + period_type + biz_date`; production can switch the cache
+  provider from simple in-process storage to Caffeine/Redis.
 - T+1 batch SQL — owned by data engineering; backend only references it for
   acceptance scenarios.
 - `type=qualified|active` query param — `design.md` §Decision 6 keeps it on

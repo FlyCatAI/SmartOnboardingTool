@@ -1,0 +1,3 @@
+spring:
+  datasource:
+    password: ${DB_PASSWORD:rm}

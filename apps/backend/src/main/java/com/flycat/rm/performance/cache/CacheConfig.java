@@ -32,7 +32,8 @@ public class CacheConfig {
 
     @Bean
     public CachedAnnualPerformanceQueryService cachedAnnualPerformanceQueryService(
-            AnnualPerformanceQueryService delegate) {
-        return new CachedAnnualPerformanceQueryService(delegate);
+            AnnualPerformanceQueryService delegate,
+            PerformanceSnapshotRepository snapshotRepository) {
+        return new CachedAnnualPerformanceQueryService(delegate, snapshotRepository);
     }
 }

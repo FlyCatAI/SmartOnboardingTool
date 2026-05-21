@@ -74,6 +74,19 @@ class MyBatisPerformanceSnapshotRepositoryTest {
     }
 
     @Test
+    void returns_latest_biz_date_for_cache_namespace() {
+        insertSnapshot("RM-A", "current_year", LocalDate.of(2026, 5, 19),
+                12, 8, 6, "1234567.89",
+                OffsetDateTime.of(2026, 5, 20, 2, 30, 0, 0, SH),
+                false);
+        MyBatisPerformanceSnapshotRepository repo = new MyBatisPerformanceSnapshotRepository(mapper);
+
+        Optional<LocalDate> got = repo.findLatestBizDate("RM-A", PeriodType.CURRENT_YEAR);
+
+        assertThat(got).contains(LocalDate.of(2026, 5, 19));
+    }
+
+    @Test
     void maps_row_into_performance_snapshot() {
         insertSnapshot("RM-A", "current_year", LocalDate.of(2026, 5, 19),
                 12, 8, 6, "1234567.89",

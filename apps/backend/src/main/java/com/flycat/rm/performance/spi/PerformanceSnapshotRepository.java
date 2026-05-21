@@ -2,6 +2,7 @@ package com.flycat.rm.performance.spi;
 
 import com.flycat.rm.performance.domain.PeriodType;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 /**
@@ -11,4 +12,8 @@ import java.util.Optional;
 public interface PerformanceSnapshotRepository {
 
     Optional<PerformanceSnapshot> findLatest(String employeeId, PeriodType periodType);
+
+    default Optional<LocalDate> findLatestBizDate(String employeeId, PeriodType periodType) {
+        return findLatest(employeeId, periodType).map(PerformanceSnapshot::bizDate);
+    }
 }

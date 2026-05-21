@@ -63,6 +63,8 @@ class CachedAnnualPerformanceQueryServiceTest {
     }
 
     private void primeRepo(String employeeId, PeriodType pt, LocalDate bizDate, String income) {
+        when(snapshotRepository.findLatestBizDate(employeeId, pt))
+                .thenReturn(Optional.of(bizDate));
         when(snapshotRepository.findLatest(employeeId, pt))
                 .thenReturn(Optional.of(new PerformanceSnapshot(
                         employeeId, pt, bizDate,
@@ -88,6 +90,8 @@ class CachedAnnualPerformanceQueryServiceTest {
 
         assertThat(r1.income()).isEqualByComparingTo("100.00");
         assertThat(r2.income()).isEqualByComparingTo("100.00");
+        verify(snapshotRepository, org.mockito.Mockito.times(2))
+                .findLatestBizDate("RM001", PeriodType.CURRENT_YEAR);
         verify(snapshotRepository).findLatest("RM001", PeriodType.CURRENT_YEAR);
         verify(aumRepository).findLatest("RM001");
         verifyNoMoreInteractions(snapshotRepository, aumRepository);
@@ -95,6 +99,10 @@ class CachedAnnualPerformanceQueryServiceTest {
 
     @Test
     void newer_snapshot_biz_date_uses_new_cache_entry_without_manual_eviction() {
+        when(snapshotRepository.findLatestBizDate("RM001", PeriodType.CURRENT_YEAR))
+                .thenReturn(
+                        Optional.of(LocalDate.of(2026, 5, 19)),
+                        Optional.of(LocalDate.of(2026, 5, 20)));
         when(snapshotRepository.findLatest("RM001", PeriodType.CURRENT_YEAR))
                 .thenReturn(
                         Optional.of(snapshot(
@@ -122,6 +130,8 @@ class CachedAnnualPerformanceQueryServiceTest {
 
         assertThat(cy.income()).isEqualByComparingTo("100.00");
         assertThat(at.income()).isEqualByComparingTo("999.99");
+        verify(snapshotRepository).findLatestBizDate("RM001", PeriodType.CURRENT_YEAR);
+        verify(snapshotRepository).findLatestBizDate("RM001", PeriodType.ALL_TIME);
         verify(snapshotRepository).findLatest("RM001", PeriodType.CURRENT_YEAR);
         verify(snapshotRepository).findLatest("RM001", PeriodType.ALL_TIME);
     }
@@ -137,6 +147,8 @@ class CachedAnnualPerformanceQueryServiceTest {
 
         assertThat(r1.employeeId()).isEqualTo("RM001");
         assertThat(r2.employeeId()).isEqualTo("RM999");
+        verify(snapshotRepository).findLatestBizDate("RM001", PeriodType.CURRENT_YEAR);
+        verify(snapshotRepository).findLatestBizDate("RM999", PeriodType.CURRENT_YEAR);
         verify(snapshotRepository).findLatest("RM001", PeriodType.CURRENT_YEAR);
         verify(snapshotRepository).findLatest("RM999", PeriodType.CURRENT_YEAR);
     }
@@ -149,6 +161,8 @@ class CachedAnnualPerformanceQueryServiceTest {
         cached.evict("RM001", PeriodType.CURRENT_YEAR);
         cached.getSummary(CALLER, Optional.empty(), PeriodType.CURRENT_YEAR);
 
+        verify(snapshotRepository, org.mockito.Mockito.times(2))
+                .findLatestBizDate("RM001", PeriodType.CURRENT_YEAR);
         verify(snapshotRepository, org.mockito.Mockito.times(2))
                 .findLatest("RM001", PeriodType.CURRENT_YEAR);
     }
@@ -165,6 +179,10 @@ class CachedAnnualPerformanceQueryServiceTest {
         cached.getSummary(CALLER, Optional.empty(), PeriodType.CURRENT_YEAR);
         cached.getSummary(other, Optional.empty(), PeriodType.ALL_TIME);
 
+        verify(snapshotRepository, org.mockito.Mockito.times(2))
+                .findLatestBizDate("RM001", PeriodType.CURRENT_YEAR);
+        verify(snapshotRepository, org.mockito.Mockito.times(2))
+                .findLatestBizDate("RM999", PeriodType.ALL_TIME);
         verify(snapshotRepository, org.mockito.Mockito.times(2))
                 .findLatest("RM001", PeriodType.CURRENT_YEAR);
         verify(snapshotRepository, org.mockito.Mockito.times(2))

@@ -5,6 +5,7 @@ import com.flycat.rm.performance.spi.PerformanceSnapshot;
 import com.flycat.rm.performance.spi.PerformanceSnapshotRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.Optional;
@@ -33,6 +34,13 @@ public class MyBatisPerformanceSnapshotRepository implements PerformanceSnapshot
         Objects.requireNonNull(employeeId, "employeeId");
         Objects.requireNonNull(periodType, "periodType");
         return mapper.findLatest(employeeId, periodType.wire()).map(this::toSnapshot);
+    }
+
+    @Override
+    public Optional<LocalDate> findLatestBizDate(String employeeId, PeriodType periodType) {
+        Objects.requireNonNull(employeeId, "employeeId");
+        Objects.requireNonNull(periodType, "periodType");
+        return mapper.findLatestBizDate(employeeId, periodType.wire());
     }
 
     private PerformanceSnapshot toSnapshot(PerformanceSnapshotRow row) {

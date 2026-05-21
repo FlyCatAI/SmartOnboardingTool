@@ -3,6 +3,7 @@ package com.flycat.rm.performance.adapter.mybatis;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 /**
@@ -15,6 +16,10 @@ import java.util.Optional;
 public interface PerformanceSnapshotMapper {
 
     Optional<PerformanceSnapshotRow> findLatest(
+            @Param("employeeId") String employeeId,
+            @Param("periodType") String periodType);
+
+    Optional<LocalDate> findLatestBizDate(
             @Param("employeeId") String employeeId,
             @Param("periodType") String periodType);
 }

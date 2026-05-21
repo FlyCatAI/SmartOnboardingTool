@@ -31,4 +31,11 @@
         WHERE employee_id = #{employeeId}
           AND period_type = #{periodType}
     </select>
+
+    <select id="findLatestBizDate" resultType="java.time.LocalDate">
+        SELECT biz_date
+        FROM rm_latest_perf_summary_snapshot
+        WHERE employee_id = #{employeeId}
+          AND period_type = #{periodType}
+    </select>
 </mapper>

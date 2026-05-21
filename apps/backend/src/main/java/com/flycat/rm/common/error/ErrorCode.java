@@ -63,6 +63,10 @@ public enum ErrorCode {
         return code;
     }
 
+    public String wireCode() {
+        return this == E_RM_PERF_FORBIDDEN ? name() : code;
+    }
+
     public String slug() {
         return slug;
     }

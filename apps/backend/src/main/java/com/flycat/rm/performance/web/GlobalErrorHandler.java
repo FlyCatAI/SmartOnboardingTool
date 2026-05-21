@@ -21,7 +21,7 @@ public class GlobalErrorHandler {
         ErrorCode code = ex.errorCode();
         HttpStatus status = httpStatus(code);
         return ResponseEntity.status(status)
-                .body(ApiEnvelope.error(code.code(), code.slug(), ex.getMessage()));
+                .body(ApiEnvelope.error(code.wireCode(), code.slug(), ex.getMessage()));
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
