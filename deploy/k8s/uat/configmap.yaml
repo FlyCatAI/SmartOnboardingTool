@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rm-backend-config
+  namespace: rm-annual-summary-uat
+  labels:
+    app.kubernetes.io/name: rm-backend
+    app.kubernetes.io/part-of: rm-annual-summary
+data:
+  # ---- non-secret runtime tunables only ----
+  SPRING_PROFILES_ACTIVE: "prod"
+  SERVER_PORT: "8080"
+  ANNUAL_PERFORMANCE_SUMMARY_ENABLED: "true"
+  # MUST stay false in UAT/prod. TestPrincipalFilter is for compose/local only.
+  AUTH_TEST_PRINCIPAL_ENABLED: "false"
+  JAVA_OPTS: "-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError"

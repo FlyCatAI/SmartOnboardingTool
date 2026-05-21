@@ -1,0 +1,87 @@
+# Canary track. Hold at replicas=1 (≈ 10% of stable=3 + canary=1 ≈ 25%; reduce
+# stable replicas during canary if a tighter % is needed). The Service above
+# selects all `app.kubernetes.io/name=rm-backend` pods, so canary pods join the
+# pool automatically once they pass readiness.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rm-backend-canary
+  namespace: rm-annual-summary-uat
+  labels:
+    app.kubernetes.io/name: rm-backend
+    app.kubernetes.io/part-of: rm-annual-summary
+    track: canary
+  annotations:
+    rm.flycat.ai/source-commit: "REPLACE_CANARY_SHA"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rm-backend
+      track: canary
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: rm-backend
+        track: canary
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      serviceAccountName: rm-backend
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: backend
+          image: ghcr.io/flycatai/rm-backend:REPLACE_CANARY_TAG
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: rm-backend-config
+            - secretRef:
+                name: rm-backend-secrets
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "2Gi"
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            periodSeconds: 10
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
