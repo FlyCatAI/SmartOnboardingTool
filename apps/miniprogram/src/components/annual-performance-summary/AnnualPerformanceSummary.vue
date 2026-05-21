@@ -15,7 +15,7 @@
       </text>
       <view
         v-if="state.data?.data_delay"
-        class="aps-delay-badge"
+        class="aps-warning-pill"
         data-testid="delay-badge"
         role="status"
       >
@@ -50,7 +50,7 @@
 
     <view
       v-if="state.periodType === 'all_time' && state.data?.history_start_year"
-      class="aps-history-start-note"
+      class="aps-warning-pill aps-warning-pill--align-start"
       data-testid="history-start-note"
     >
       <text>自 {{ state.data.history_start_year }} 年起</text>
@@ -157,6 +157,7 @@ import type { AnnualSummaryController, AnnualSummaryState } from './controller'
 import type { PeriodType } from '../../services/performance-summary'
 import { cardRoute, type SummaryMetricKey, type CardRoute } from './card-routes'
 import { formatMoneyYuan } from '../../utils/money-format'
+import { formatUpdatedAt } from '../../utils/date-format'
 
 const props = defineProps<{
   controller: AnnualSummaryController
@@ -206,12 +207,6 @@ function navigate(key: SummaryMetricKey) {
   }
 }
 
-function formatUpdatedAt(iso: string): string {
-  // YYYY-MM-DD HH:mm, no seconds; uni-app runs in +08:00 client, server already +08:00.
-  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(iso)
-  if (!match) return iso
-  return `${match[1]}-${match[2]}-${match[3]} ${match[4]}:${match[5]}`
-}
 </script>
 
 <style scoped>
@@ -244,7 +239,7 @@ function formatUpdatedAt(iso: string): string {
   color: var(--aps-color-muted, #5c667a);
 }
 
-.aps-delay-badge {
+.aps-warning-pill {
   display: inline-flex;
   align-items: center;
   padding: 3px 10px;
@@ -252,6 +247,10 @@ function formatUpdatedAt(iso: string): string {
   color: var(--aps-color-warning, #a85f00);
   background: var(--aps-color-warning-soft, #fff2d5);
   border-radius: var(--aps-radius-pill, 999px);
+}
+
+.aps-warning-pill--align-start {
+  align-self: flex-start;
 }
 
 .aps-tabs {
@@ -284,16 +283,6 @@ function formatUpdatedAt(iso: string): string {
 .aps-tab:focus-visible {
   outline: none;
   box-shadow: var(--aps-shadow-focus, 0 0 0 3px rgba(11, 95, 255, 0.22));
-}
-
-.aps-history-start-note {
-  display: inline-flex;
-  align-self: flex-start;
-  padding: 3px 10px;
-  font-size: 12px;
-  color: var(--aps-color-warning, #a85f00);
-  background: var(--aps-color-warning-soft, #fff2d5);
-  border-radius: var(--aps-radius-pill, 999px);
 }
 
 .aps-p1-grid {
