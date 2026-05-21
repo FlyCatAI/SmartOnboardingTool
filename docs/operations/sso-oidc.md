@@ -18,7 +18,7 @@
 |--------------------------------|--------------------------------|-------|------------------|-----------------------------------------------------|
 | `sso.oidc.enabled`             | `SSO_OIDC_ENABLED`             | 否    | `false`（prod 强制 `true`）| 关闭时不注册 `HttpSsoClient` bean                   |
 | `sso.oidc.token-endpoint`      | `SSO_OIDC_TOKEN_ENDPOINT`      | 是    | —                | OIDC token endpoint，必须 https                      |
-| `sso.oidc.userinfo-endpoint`   | `SSO_OIDC_USERINFO_ENDPOINT`   | 是    | —                | OIDC userinfo endpoint                              |
+| `sso.oidc.userinfo-endpoint`   | `SSO_OIDC_USERINFO_ENDPOINT`   | 是    | —                | OIDC userinfo endpoint，必须 https                   |
 | `sso.oidc.client-id`           | `SSO_OIDC_CLIENT_ID`           | 是    | —                | 行内 SSO 颁发的 client_id                            |
 | `sso.oidc.client-secret`       | `SSO_OIDC_CLIENT_SECRET`       | 是    | —                | client_secret，仅来自 K8s Secret / vault             |
 | `sso.oidc.redirect-uri`        | `SSO_OIDC_REDIRECT_URI`        | 是    | —                | 与 SSO 后台登记的 redirect 完全一致                  |

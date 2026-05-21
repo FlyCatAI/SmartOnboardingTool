@@ -38,7 +38,7 @@ public class GlobalErrorHandler {
         return switch (code) {
             case E_RM_PERF_FORBIDDEN, FORBIDDEN, ROLE_MISMATCH, DATA_SCOPE_DENIED -> HttpStatus.FORBIDDEN;
             case BAD_REQUEST -> HttpStatus.BAD_REQUEST;
-            case UNAUTHENTICATED -> HttpStatus.UNAUTHORIZED;
+            case UNAUTHENTICATED, SSO_LOGIN_FAILED, SESSION_REFRESH_FAILED -> HttpStatus.UNAUTHORIZED;
             case NOT_FOUND -> HttpStatus.NOT_FOUND;
             case CONFLICT -> HttpStatus.CONFLICT;
             case RATE_LIMITED -> HttpStatus.TOO_MANY_REQUESTS;

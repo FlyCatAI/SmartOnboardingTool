@@ -2,6 +2,8 @@ package com.flycat.rm.auth.oidc;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Duration;
 
 /**
@@ -28,11 +30,25 @@ public class OidcProperties {
         requireNonBlank(clientId, "sso.oidc.client-id");
         requireNonBlank(clientSecret, "sso.oidc.client-secret");
         requireNonBlank(redirectUri, "sso.oidc.redirect-uri");
+        requireHttpsEndpoint(tokenEndpoint, "sso.oidc.token-endpoint");
+        requireHttpsEndpoint(userinfoEndpoint, "sso.oidc.userinfo-endpoint");
     }
 
     private static void requireNonBlank(String value, String key) {
         if (value == null || value.trim().isEmpty()) {
             throw new IllegalStateException(key + " is required (set the matching environment variable)");
+        }
+    }
+
+    private static void requireHttpsEndpoint(String value, String key) {
+        URI uri;
+        try {
+            uri = new URI(value.trim());
+        } catch (URISyntaxException e) {
+            throw new IllegalStateException(key + " must be a valid https:// URI", e);
+        }
+        if (!"https".equalsIgnoreCase(uri.getScheme())) {
+            throw new IllegalStateException(key + " must use https://");
         }
     }
 

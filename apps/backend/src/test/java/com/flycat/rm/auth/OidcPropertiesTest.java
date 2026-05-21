@@ -54,6 +54,26 @@ class OidcPropertiesTest {
     }
 
     @Test
+    void validate_rejects_plain_http_token_endpoint() {
+        OidcProperties p = baseProps();
+        p.setTokenEndpoint("http://sso/oidc/token");
+        assertThatThrownBy(p::validate)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("sso.oidc.token-endpoint")
+                .hasMessageContaining("https://");
+    }
+
+    @Test
+    void validate_rejects_plain_http_userinfo_endpoint() {
+        OidcProperties p = baseProps();
+        p.setUserinfoEndpoint("http://sso/oidc/userinfo");
+        assertThatThrownBy(p::validate)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("sso.oidc.userinfo-endpoint")
+                .hasMessageContaining("https://");
+    }
+
+    @Test
     void validate_passes_when_all_required_fields_set() {
         OidcProperties p = baseProps();
         p.validate();
